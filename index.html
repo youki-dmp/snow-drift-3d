@@ -663,15 +663,15 @@
           <h2 class="side-heading" id="enemyTitle">出現する3D魔物（リスクと攻略）</h2>
           <ul class="enemy-list">
             <li class="enemy-item">
-              <span class="enemy-name">ブルースライム（HP 2）</span>
-              <span class="enemy-note">ぷるぷる跳ねながら接近。剣斬りのコンボ起点にしやすい基本の魔物。</span>
+              <span class="enemy-name">ブルースライム（HP 2 / Wave 1〜）</span>
+              <span class="enemy-note">ゆっくり跳ねながら接近。剣斬りや回転斬りのコンボ起点にしやすい基本の魔物。</span>
             </li>
             <li class="enemy-item">
-              <span class="enemy-name">盾持ちゴブリン（HP 4）</span>
+              <span class="enemy-name">盾持ちゴブリン（HP 4 / Wave 3〜）</span>
               <span class="enemy-note">正面の鉄盾は通常斬りを弾く。突進を回避して側面を斬るか、回転斬りで突破。</span>
             </li>
             <li class="enemy-item">
-              <span class="enemy-name">レッドウィザード（HP 3）</span>
+              <span class="enemy-name">レッドウィザード（HP 3 / Wave 6〜）</span>
               <span class="enemy-note">距離を取って魔法弾を放つ。<strong>魔法弾を剣で弾き返して当てると大ダメージ</strong>。</span>
             </li>
           </ul>
@@ -1269,9 +1269,9 @@
           if (!b.alive) { b.alive = true; b.regrow = 0; }
         }
 
-        const slimeCount = 2 + Math.min(5, waveNum);
-        const goblinCount = waveNum >= 1 ? Math.min(4, Math.floor((waveNum + 1) / 2)) : 0;
-        const wizCount = waveNum >= 2 ? Math.min(3, Math.floor(waveNum / 2)) : 0;
+        const slimeCount = Math.min(5, 2 + waveNum);
+        const goblinCount = waveNum >= 3 ? Math.min(3, 1 + Math.floor((waveNum - 3) / 2)) : 0;
+        const wizCount = waveNum >= 6 ? Math.min(3, 1 + Math.floor((waveNum - 6) / 2)) : 0;
 
         const roster = [];
         for (let i = 0; i < slimeCount; i++) roster.push('slime');
@@ -1283,10 +1283,10 @@
           let sy = 0;
           for (let attempt = 0; attempt < 30; attempt++) {
             const ang = Math.random() * Math.PI * 2;
-            const dist = 175 + Math.random() * 170;
+            const dist = 195 + Math.random() * 165;
             sx = Math.max(-PARAMS.arenaW / 2 + 85, Math.min(PARAMS.arenaW / 2 - 85, Math.cos(ang) * dist));
             sy = Math.max(-PARAMS.arenaH / 2 + 85, Math.min(PARAMS.arenaH / 2 - 85, Math.sin(ang) * dist));
-            if (Math.hypot(sx - state.player.x, sy - state.player.y) > 140) break;
+            if (Math.hypot(sx - state.player.x, sy - state.player.y) > 175) break;
           }
           const hp = kind === 'goblin' ? 4 : (kind === 'wizard' ? 3 : 2);
           state.enemies.push({
@@ -1758,9 +1758,10 @@
         }
 
         // Update Enemies
-        for (const en of state.enemies) {
+        for (let i = 0; i < state.enemies.length; i++) {
+          const en = state.enemies[i];
           if (en.hurtTimer > 0) en.hurtTimer = Math.max(0, en.hurtTimer - dt);
-          en.hopPhase += dt * (en.kind === 'slime' ? 8 : 10);
+          en.hopPhase += dt * (en.kind === 'slime' ? 6.2 : 8.0);
 
           const dx = p.x - en.x;
           const dy = p.y - en.y;
@@ -1768,20 +1769,37 @@
           const nx = dx / Math.max(1, dist);
           const ny = dy / Math.max(1, dist);
 
+          // Gentle separation so enemies don't stack into an instant surround wall
+          let sepX = 0;
+          let sepY = 0;
+          for (let j = 0; j < state.enemies.length; j++) {
+            if (i === j) continue;
+            const other = state.enemies[j];
+            const ox = en.x - other.x;
+            const oy = en.y - other.y;
+            const od = Math.hypot(ox, oy);
+            const minSep = en.r + other.r + 14;
+            if (od < minSep && od > 0.001) {
+              const push = (minSep - od) / minSep;
+              sepX += (ox / od) * push * 55;
+              sepY += (oy / od) * push * 55;
+            }
+          }
+
           if (en.kind === 'slime') {
             en.angle = Math.atan2(ny, nx);
-            const hopBoost = Math.sin(en.hopPhase) > 0 ? 84 : 36;
-            en.x += (nx * hopBoost + en.vx) * dt;
-            en.y += (ny * hopBoost + en.vy) * dt;
+            const hopBoost = Math.sin(en.hopPhase) > 0 ? 54 : 22;
+            en.x += (nx * hopBoost + sepX + en.vx) * dt;
+            en.y += (ny * hopBoost + sepY + en.vy) * dt;
           } else if (en.kind === 'goblin') {
             en.aiTimer -= dt;
             if (en.aiState === 'idle') {
               en.angle = Math.atan2(ny, nx);
-              en.x += (nx * 64 + en.vx) * dt;
-              en.y += (ny * 64 + en.vy) * dt;
+              en.x += (nx * 44 + sepX + en.vx) * dt;
+              en.y += (ny * 44 + sepY + en.vy) * dt;
               if (dist < 165 && en.aiTimer <= 0) {
                 en.aiState = 'windup';
-                en.aiTimer = 0.45;
+                en.aiTimer = 0.60;
                 en.chargeDirX = nx;
                 en.chargeDirY = ny;
               }
@@ -1790,30 +1808,30 @@
               en.y += en.vy * dt;
               if (en.aiTimer <= 0) {
                 en.aiState = 'dash';
-                en.aiTimer = 0.45;
+                en.aiTimer = 0.42;
               }
             } else {
-              en.x += (en.chargeDirX * 235 + en.vx) * dt;
-              en.y += (en.chargeDirY * 235 + en.vy) * dt;
+              en.x += (en.chargeDirX * 175 + en.vx) * dt;
+              en.y += (en.chargeDirY * 175 + en.vy) * dt;
               if (en.aiTimer <= 0) {
                 en.aiState = 'idle';
-                en.aiTimer = 1.2;
+                en.aiTimer = 1.6;
               }
             }
           } else if (en.kind === 'wizard') {
             en.angle = Math.atan2(ny, nx);
-            const desired = dist < 130 ? -65 : (dist > 220 ? 60 : 0);
-            en.x += (nx * desired + en.vx) * dt;
-            en.y += (ny * desired + en.vy) * dt;
+            const desired = dist < 135 ? -45 : (dist > 225 ? 42 : 0);
+            en.x += (nx * desired + sepX + en.vx) * dt;
+            en.y += (ny * desired + sepY + en.vy) * dt;
             en.aiTimer -= dt;
             if (en.aiTimer <= 0 && dist < 340) {
-              en.aiTimer = 2.1;
+              en.aiTimer = 2.7;
               state.projectiles.push({
                 x: en.x + nx * 14,
                 y: en.y + ny * 14,
-                vx: nx * 195,
-                vy: ny * 195,
-                life: 3.2,
+                vx: nx * 145,
+                vy: ny * 145,
+                life: 3.6,
                 reflected: false
               });
               sfx.tone(520, 0.08, 'sine', 0.08, 280);
