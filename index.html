@@ -1,0 +1,1793 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SNOW DRIFT 3D — Sprite Stacking Arcade</title>
+  <style>
+    :root {
+      --bg: #eef2f7;
+      --surface: #ffffff;
+      --surface-subtle: #e2e8f0;
+      --border: #cbd5e1;
+      --ink: #0f172a;
+      --ink-muted: #475569;
+      --accent: #0f5c6e;
+      --accent-hover: #0b4654;
+      --accent-soft: #e0f2fe;
+      --danger: #b91c1c;
+      --gold: #b45309;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", Meiryo, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      min-height: 100dvh;
+      background-color: var(--bg);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    .app {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .brand-title {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.25;
+      text-wrap: balance;
+    }
+
+    .brand-sub {
+      margin: 0;
+      font-size: 13px;
+      color: var(--ink-muted);
+    }
+
+    .topbar-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn {
+      appearance: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 36px;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background-color: var(--surface);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.2;
+      cursor: pointer;
+      transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+    }
+
+    .btn-primary {
+      background-color: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
+    }
+
+    @media (hover: hover) {
+      .btn:hover {
+        background-color: var(--surface-subtle);
+        border-color: #94a3b8;
+      }
+
+      .btn-primary:hover {
+        background-color: var(--accent-hover);
+        border-color: var(--accent-hover);
+      }
+    }
+
+    .btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .hud-strip {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .hud-cell {
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 8px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .hud-label {
+      font-size: 12px;
+      color: var(--ink-muted);
+      line-height: 1.2;
+    }
+
+    .hud-value {
+      font-family: var(--font-mono);
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
+      overflow-wrap: anywhere;
+    }
+
+    .hud-value.is-accent {
+      color: var(--accent);
+    }
+
+    .hud-value.is-warn {
+      color: var(--danger);
+    }
+
+    .hud-value.is-gold {
+      color: var(--gold);
+    }
+
+    .boost-track {
+      width: 100%;
+      height: 8px;
+      background-color: var(--surface-subtle);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .boost-fill {
+      height: 100%;
+      width: 0%;
+      background-color: var(--accent);
+      transition: width 60ms linear, background-color 120ms ease;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 300px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .stage-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .canvas-shell {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      min-height: 300px;
+      background-color: #dbeafe;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      touch-action: none;
+      user-select: none;
+    }
+
+    #gameCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+
+    .stage-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background-color: rgba(15, 23, 42, 0.78);
+    }
+
+    .stage-overlay[hidden] {
+      display: none;
+    }
+
+    .overlay-sheet {
+      width: 100%;
+      max-width: 380px;
+      padding: 8px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      text-align: left;
+      color: #ffffff;
+    }
+
+    .overlay-title {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1.25;
+      color: #ffffff;
+    }
+
+    .overlay-text {
+      margin: 0;
+      font-size: 14px;
+      color: #e2e8f0;
+      line-height: 1.55;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin: 0;
+    }
+
+    .result-row {
+      padding: 8px 12px;
+      background-color: rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .result-row dt {
+      font-size: 12px;
+      color: #cbd5e1;
+    }
+
+    .result-row dd {
+      margin: 0;
+      font-family: var(--font-mono);
+      font-size: 16px;
+      font-weight: 700;
+      color: #ffffff;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .overlay-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .overlay-actions .btn {
+      flex: 1;
+      min-height: 44px;
+      font-size: 14px;
+    }
+
+    .touch-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .touch-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .touch-btn {
+      min-width: 68px;
+      min-height: 44px;
+      padding: 8px 16px;
+      font-size: 14px;
+      touch-action: manipulation;
+    }
+
+    .touch-btn.is-active {
+      background-color: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
+    }
+
+    .side-col {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .side-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .side-heading {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .racer-fieldset {
+      margin: 0;
+      padding: 0;
+      border: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .racer-legend {
+      padding: 0;
+      margin-bottom: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .choice-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      background-color: var(--surface);
+      cursor: pointer;
+      transition: border-color 150ms ease, background-color 150ms ease;
+    }
+
+    .choice-card:has(input:checked) {
+      border-color: var(--accent);
+      background-color: var(--accent-soft);
+    }
+
+    @media (hover: hover) {
+      .choice-card:hover {
+        border-color: #94a3b8;
+      }
+
+      .choice-card:has(input:checked):hover {
+        border-color: var(--accent);
+      }
+    }
+
+    .choice-card:has(input:focus-visible) {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .choice-radio {
+      width: 16px;
+      height: 16px;
+      margin: 4px 0 0;
+      accent-color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .choice-body {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .choice-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1.3;
+    }
+
+    .choice-desc {
+      font-size: 12px;
+      color: var(--ink-muted);
+      line-height: 1.4;
+    }
+
+    .guide-list {
+      margin: 0;
+      padding: 12px 12px 12px 28px;
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--ink-muted);
+    }
+
+    .guide-list strong {
+      color: var(--ink);
+    }
+
+    @media (max-width: 920px) {
+      .main-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .hud-strip {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 520px) {
+      .app {
+        padding: 12px;
+      }
+
+      .hud-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .canvas-shell {
+        aspect-ratio: 4 / 3;
+        min-height: 240px;
+      }
+
+      .touch-btn {
+        flex: 1;
+        min-width: 0;
+        padding: 8px 12px;
+      }
+
+      .touch-group {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <h1 class="brand-title">SNOW DRIFT 3D — スプライトスタッキング・アーケード</h1>
+        <p class="brand-sub">ドリフトで溜めてブースト解放。60秒でスターを繋いで雪だるまを吹き飛ばす擬似3Dゲーム</p>
+      </div>
+      <div class="topbar-actions">
+        <button type="button" class="btn" id="muteBtn" aria-pressed="false">効果音: オン</button>
+        <button type="button" class="btn" id="restartTopBtn">リトライ (R)</button>
+      </div>
+    </header>
+
+    <section class="hud-strip" aria-label="ゲームステータス">
+      <div class="hud-cell">
+        <span class="hud-label">スコア</span>
+        <span class="hud-value" id="hudScore">0</span>
+      </div>
+      <div class="hud-cell">
+        <span class="hud-label">コンボ</span>
+        <span class="hud-value is-accent" id="hudCombo">x1</span>
+      </div>
+      <div class="hud-cell">
+        <span class="hud-label">残り時間</span>
+        <span class="hud-value" id="hudTime">60.0s</span>
+      </div>
+      <div class="hud-cell">
+        <span class="hud-label">ブースト溜め</span>
+        <span class="hud-value is-gold" id="hudBoostText">0%</span>
+        <div class="boost-track" aria-hidden="true">
+          <div class="boost-fill" id="hudBoostFill"></div>
+        </div>
+      </div>
+      <div class="hud-cell">
+        <span class="hud-label">ベスト記録</span>
+        <span class="hud-value" id="hudBest">0</span>
+      </div>
+    </section>
+
+    <main class="main-grid">
+      <section class="stage-wrap" aria-label="プレイ画面">
+        <div class="canvas-shell" id="canvasShell">
+          <canvas id="gameCanvas" aria-label="SNOW DRIFT 3D ゲームキャンバス"></canvas>
+
+          <div class="stage-overlay" id="startOverlay">
+            <div class="overlay-sheet">
+              <h2 class="overlay-title">SNOW DRIFT 3D</h2>
+              <p class="overlay-text">
+                2Dドット絵を16〜18層に重ねた擬似3D雪原フィールド。
+                <strong>Space長押しでドリフト溜め</strong> → 離すと<strong>無敵ターボ</strong>発動。
+                赤いメガスターは高得点＆時間+2秒です。
+              </p>
+              <div class="overlay-actions">
+                <button type="button" class="btn btn-primary" id="startBtn">スタート (Enter)</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="stage-overlay" id="resultOverlay" hidden>
+            <div class="overlay-sheet">
+              <h2 class="overlay-title" id="resultTitle">フィニッシュ</h2>
+              <p class="overlay-text" id="resultRank">ランク評価</p>
+              <dl class="result-grid">
+                <div class="result-row">
+                  <dt>最終スコア</dt>
+                  <dd id="resScore">0</dd>
+                </div>
+                <div class="result-row">
+                  <dt>最大コンボ</dt>
+                  <dd id="resCombo">0</dd>
+                </div>
+                <div class="result-row">
+                  <dt>回収スター</dt>
+                  <dd id="resStars">0</dd>
+                </div>
+                <div class="result-row">
+                  <dt>撃破雪だるま</dt>
+                  <dd id="resSmash">0</dd>
+                </div>
+              </dl>
+              <div class="overlay-actions">
+                <button type="button" class="btn btn-primary" id="retryBtn">もう一回遊ぶ (Enter / R)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="touch-controls" aria-label="タッチ・クリック操作">
+          <div class="touch-group">
+            <button type="button" class="btn touch-btn" id="btnLeft" aria-label="左に曲がる">左 (A)</button>
+            <button type="button" class="btn touch-btn" id="btnRight" aria-label="右に曲がる">右 (D)</button>
+          </div>
+          <div class="touch-group">
+            <button type="button" class="btn btn-primary touch-btn" id="btnDrift" aria-label="ドリフト溜めとブースト解放">ドリフト / ブースト (Space)</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="side-col" aria-label="マシン選択と遊び方">
+        <fieldset class="racer-fieldset">
+          <legend class="racer-legend">操作キャラ選択（性能特化）</legend>
+
+          <label class="choice-card">
+            <input type="radio" class="choice-radio" name="racer" value="car" checked>
+            <span class="choice-body">
+              <span class="choice-title">レトロスポーツカー</span>
+              <span class="choice-desc">最高速＆ターボ爆発力特化。大ドリフトで雪だるまを豪快に吹き飛ばす上級者向け。</span>
+            </span>
+          </label>
+
+          <label class="choice-card">
+            <input type="radio" class="choice-radio" name="racer" value="bunny">
+            <span class="choice-body">
+              <span class="choice-title">ピクセルうさぎ</span>
+              <span class="choice-desc">超小回り＆スター吸引範囲が広い。コンボを途切れさせにくい安定ハイスコア型。</span>
+            </span>
+          </label>
+        </fieldset>
+
+        <section class="side-section" aria-labelledby="howTitle">
+          <h2 class="side-heading" id="howTitle">操作とコツ（リスク＆リターン）</h2>
+          <ul class="guide-list">
+            <li><strong>自動前進 + A/D（または左右キー）</strong>でステアリング。迷わず即操作できます。</li>
+            <li><strong>Space長押しでドリフト溜め</strong>：曲がりながらチャージし、離すと無敵ターボ解放。</li>
+            <li><strong>無敵ターボ中に雪だるま体当たり</strong>：撃破ボーナス +250pt＆コンボ延長。</li>
+            <li><strong>赤いメガスター</strong>：モミの木の近くに出現。攻めて取ると +300pt ＆ 残り時間 +2秒。</li>
+          </ul>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <script>
+    (() => {
+      // =========================================================================
+      // Tunable Game Parameters (Sakurai Principle: externalized tuning block)
+      // =========================================================================
+      const PARAMS = {
+        roundDuration: 60.0,
+        worldRadius: 430,
+        comboWindow: 3.4,
+        maxComboMult: 5,
+        starCollectRadiusScale: 1.35, // Generous pickup hitbox
+        treeHitRadiusScale: 0.72,     // Forgiving obstacle hitbox
+        racers: {
+          car: {
+            id: 'car',
+            name: 'レトロスポーツカー',
+            baseSpeed: 175,
+            turboSpeed: 330,
+            turnRate: 2.7,
+            driftTurnRate: 3.7,
+            driftSlowFactor: 0.76,
+            chargeRate: 0.95,
+            turboDuration: 1.35,
+            magnetRadius: 40,
+            scale: 2.8,
+            layerStep: 1.9
+          },
+          bunny: {
+            id: 'bunny',
+            name: 'ピクセルうさぎ',
+            baseSpeed: 158,
+            turboSpeed: 285,
+            turnRate: 3.5,
+            driftTurnRate: 4.5,
+            driftSlowFactor: 0.84,
+            chargeRate: 1.12,
+            turboDuration: 1.15,
+            magnetRadius: 68,
+            scale: 3.2,
+            layerStep: 1.85
+          }
+        }
+      };
+
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // =========================================================================
+      // Web Audio API Retro Synthesizer (Attack-focused, crisp SFX)
+      // =========================================================================
+      class SoundEngine {
+        constructor() {
+          this.ctx = null;
+          this.muted = false;
+        }
+        ensure() {
+          if (this.muted) return null;
+          if (!this.ctx) {
+            const AC = window.AudioContext || window.webkitAudioContext;
+            if (!AC) return null;
+            this.ctx = new AC();
+          }
+          if (this.ctx.state === 'suspended') {
+            this.ctx.resume().catch(() => {});
+          }
+          return this.ctx;
+        }
+        tone(freq, dur, type = 'triangle', gainVal = 0.14, slideTo = null, delay = 0) {
+          const ctx = this.ensure();
+          if (!ctx) return;
+          const now = ctx.currentTime + delay;
+          const osc = ctx.createOscillator();
+          const g = ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, now);
+          if (slideTo) {
+            osc.frequency.exponentialRampToValueAtTime(Math.max(40, slideTo), now + dur);
+          }
+          g.gain.setValueAtTime(0.001, now);
+          g.gain.linearRampToValueAtTime(gainVal, now + 0.008);
+          g.gain.exponentialRampToValueAtTime(0.001, now + dur);
+          osc.connect(g);
+          g.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + dur + 0.02);
+        }
+        noise(dur, gainVal = 0.12, highpass = 400) {
+          const ctx = this.ensure();
+          if (!ctx) return;
+          const bufferSize = Math.floor(ctx.sampleRate * dur);
+          const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+          }
+          const src = ctx.createBufferSource();
+          src.buffer = buffer;
+          const filter = ctx.createBiquadFilter();
+          filter.type = 'highpass';
+          filter.frequency.value = highpass;
+          const g = ctx.createGain();
+          const now = ctx.currentTime;
+          g.gain.setValueAtTime(gainVal, now);
+          g.gain.exponentialRampToValueAtTime(0.001, now + dur);
+          src.connect(filter);
+          filter.connect(g);
+          g.connect(ctx.destination);
+          src.start(now);
+        }
+        playStar(combo) {
+          const scale = [523.25, 587.33, 659.25, 783.99, 880.0, 1046.5, 1174.66];
+          const base = scale[Math.min(combo, scale.length - 1)];
+          this.tone(base, 0.12, 'triangle', 0.15, base * 1.15);
+          this.tone(base * 1.5, 0.09, 'sine', 0.08, null, 0.03);
+        }
+        playMegaStar() {
+          this.tone(587.33, 0.12, 'square', 0.09);
+          this.tone(880.0, 0.14, 'square', 0.10, null, 0.05);
+          this.tone(1174.66, 0.24, 'triangle', 0.14, null, 0.10);
+        }
+        playChargeReady() {
+          this.tone(740, 0.08, 'sine', 0.10, 988);
+        }
+        playTurbo() {
+          this.noise(0.22, 0.15, 700);
+          this.tone(140, 0.22, 'sawtooth', 0.13, 420);
+        }
+        playSmash() {
+          this.noise(0.16, 0.16, 250);
+          this.tone(240, 0.14, 'square', 0.12, 620);
+        }
+        playBump() {
+          this.noise(0.14, 0.14, 150);
+          this.tone(160, 0.18, 'sawtooth', 0.14, 55);
+        }
+        playFinish(isBest) {
+          const notes = isBest ? [523, 659, 784, 1046, 1318] : [523, 659, 784, 1046];
+          notes.forEach((n, i) => {
+            this.tone(n, 0.18, 'triangle', 0.13, null, i * 0.08);
+          });
+        }
+      }
+
+      const sfx = new SoundEngine();
+
+      // =========================================================================
+      // Offscreen Pixel-Art Slice Builder & Models (Sprite Stacking)
+      // =========================================================================
+      function createSliceCanvas(size, drawFn) {
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = false;
+        const api = {
+          px(x, y, color) {
+            const ix = Math.round(x);
+            const iy = Math.round(y);
+            if (ix < 0 || ix >= size || iy < 0 || iy >= size) return;
+            ctx.fillStyle = color;
+            ctx.fillRect(ix, iy, 1, 1);
+          },
+          rect(x, y, w, h, color) {
+            ctx.fillStyle = color;
+            const x0 = Math.max(0, Math.round(x));
+            const y0 = Math.max(0, Math.round(y));
+            const x1 = Math.min(size, Math.round(x + w));
+            const y1 = Math.min(size, Math.round(y + h));
+            if (x1 <= x0 || y1 <= y0) return;
+            ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+          },
+          ellipse(cx, cy, rx, ry, color) {
+            ctx.fillStyle = color;
+            for (let y = 0; y < size; y++) {
+              for (let x = 0; x < size; x++) {
+                const dx = (x + 0.5 - cx) / rx;
+                const dy = (y + 0.5 - cy) / ry;
+                if (dx * dx + dy * dy <= 1.0) ctx.fillRect(x, y, 1, 1);
+              }
+            }
+          }
+        };
+        drawFn(api);
+        return canvas;
+      }
+
+      function buildCarSprite() {
+        const size = 20;
+        const layers = [];
+        for (let z = 0; z < 16; z++) {
+          layers.push(createSliceCanvas(size, (g) => {
+            if (z <= 3) {
+              g.rect(3, 4, 2, 4, '#1e293b');
+              g.rect(15, 4, 2, 4, '#1e293b');
+              g.rect(3, 12, 2, 4, '#1e293b');
+              g.rect(15, 12, 2, 4, '#1e293b');
+              if (z === 1 || z === 2) {
+                g.rect(3, 5, 1, 2, '#94a3b8');
+                g.rect(16, 5, 1, 2, '#94a3b8');
+                g.rect(3, 13, 1, 2, '#94a3b8');
+                g.rect(16, 13, 1, 2, '#94a3b8');
+              }
+              if (z >= 1) g.rect(5, 3, 10, 14, '#334155');
+            }
+            if (z >= 3 && z <= 6) {
+              const col = z === 3 ? '#991b1b' : (z === 6 ? '#ef4444' : '#dc2626');
+              g.rect(4, 2, 12, 16, col);
+              if (z === 3 || z === 4) {
+                g.rect(5, 1, 10, 1, '#cbd5e1');
+                g.rect(5, 18, 10, 1, '#cbd5e1');
+              }
+              g.rect(9, 2, 2, 16, '#f8fafc');
+              if (z === 5 || z === 6) {
+                g.rect(5, 2, 2, 1, '#fef08a');
+                g.rect(13, 2, 2, 1, '#fef08a');
+                g.rect(5, 17, 2, 1, '#fb923c');
+                g.rect(13, 17, 2, 1, '#fb923c');
+              }
+            }
+            if (z >= 7 && z <= 9) {
+              g.rect(5, 3, 10, 14, z === 7 ? '#dc2626' : '#ef4444');
+              g.rect(9, 3, 2, 14, '#f8fafc');
+              if (z === 8) {
+                g.rect(3, 7, 2, 1, '#991b1b');
+                g.rect(15, 7, 2, 1, '#991b1b');
+              }
+              if (z >= 8) g.rect(4, 16, 12, 2, z === 9 ? '#ef4444' : '#991b1b');
+            }
+            if (z >= 10 && z <= 13) {
+              const inset = z >= 12 ? 1 : 0;
+              const yF = 6 + inset;
+              const yB = 14 - inset;
+              g.rect(6, yF, 8, yB - yF, z === 10 ? '#0284c7' : '#38bdf8');
+              g.px(6, yF, '#991b1b'); g.px(13, yF, '#991b1b');
+              g.px(6, yB - 1, '#991b1b'); g.px(13, yB - 1, '#991b1b');
+              if (z === 11) g.rect(7, yF, 2, 1, '#e0f2fe');
+            }
+            if (z >= 14) {
+              const pad = z === 15 ? 1 : 0;
+              g.rect(6 + pad, 8, 8 - pad * 2, 5, z === 14 ? '#dc2626' : '#ef4444');
+              g.rect(9, 8, 2, 5, '#f8fafc');
+            }
+          }));
+        }
+        return { size, layers };
+      }
+
+      function buildBunnySprite() {
+        const size = 16;
+        const layers = [];
+        for (let z = 0; z < 18; z++) {
+          layers.push(createSliceCanvas(size, (g) => {
+            if (z <= 2) {
+              g.rect(4, 5, 3, 5, z === 0 ? '#cbd5e1' : '#ffffff');
+              g.rect(9, 5, 3, 5, z === 0 ? '#cbd5e1' : '#ffffff');
+            }
+            if (z >= 2 && z <= 7) {
+              const rx = (z === 2 || z === 7) ? 3.8 : 4.6;
+              const ry = (z === 2 || z === 7) ? 4.0 : 4.8;
+              g.ellipse(8, 8.5, rx, ry, z <= 3 ? '#e2e8f0' : '#ffffff');
+              if (z >= 4 && z <= 5) {
+                g.rect(3, 6, 2, 2, '#e2e8f0');
+                g.rect(11, 6, 2, 2, '#e2e8f0');
+              }
+            }
+            if (z >= 3 && z <= 5) g.rect(7, 13, 2, 2, '#ffffff');
+            if (z >= 8 && z <= 12) {
+              const r = (z === 8 || z === 12) ? 3.5 : 4.3;
+              g.ellipse(8, 7.5, r, r, z === 8 ? '#e2e8f0' : '#ffffff');
+              if (z === 9) {
+                g.px(5, 4, '#fbcfe8'); g.px(10, 4, '#fbcfe8');
+                g.rect(7, 3, 2, 1, '#f472b6');
+              }
+              if (z === 10 || z === 11) {
+                g.px(6, 3, '#0f172a'); g.px(9, 3, '#0f172a');
+              }
+            }
+            if (z >= 13) {
+              const w = z === 17 ? 1 : 2;
+              const h = z >= 16 ? 2 : 3;
+              g.rect(5, 7, w, h, '#ffffff');
+              g.rect(11 - w, 7, w, h, '#ffffff');
+              if (z <= 16) { g.px(5, 7, '#f472b6'); g.px(10, 7, '#f472b6'); }
+            }
+          }));
+        }
+        return { size, layers };
+      }
+
+      function buildPineSprite() {
+        const size = 14;
+        const layers = [];
+        for (let z = 0; z < 16; z++) {
+          layers.push(createSliceCanvas(size, (g) => {
+            if (z <= 3) g.rect(6, 6, 2, 2, '#6b4423');
+            if (z >= 3 && z <= 14) {
+              const tier = (z - 3) % 3;
+              const p = (z - 3) / 11;
+              const r = Math.max(1.0, (5.2 - p * 3.8) - tier * 0.5);
+              const col = tier === 0 ? '#14532d' : (tier === 1 ? '#15803d' : '#f1f5f9');
+              g.ellipse(7, 7, r, r, col);
+            }
+            if (z === 15) g.rect(6, 6, 2, 2, '#ffffff');
+          }));
+        }
+        return { size, layers };
+      }
+
+      function buildSnowmanSprite() {
+        const size = 12;
+        const layers = [];
+        for (let z = 0; z < 14; z++) {
+          layers.push(createSliceCanvas(size, (g) => {
+            if (z <= 4) {
+              const r = (z === 0 || z === 4) ? 2.6 : 3.4;
+              g.ellipse(6, 6, r, r, z === 0 ? '#cbd5e1' : '#ffffff');
+            } else if (z === 5) {
+              g.ellipse(6, 6, 2.4, 2.4, '#dc2626');
+            } else if (z >= 6 && z <= 9) {
+              const r = z === 9 ? 1.8 : 2.4;
+              g.ellipse(6, 6, r, r, '#ffffff');
+              if (z === 7) {
+                g.px(5, 3, '#f97316'); g.px(4, 4, '#0f172a'); g.px(7, 4, '#0f172a');
+              }
+            } else if (z === 10) {
+              g.ellipse(6, 6, 2.6, 2.6, '#1e293b');
+            } else {
+              g.rect(4, 4, 4, 4, '#1e293b');
+            }
+          }));
+        }
+        return { size, layers };
+      }
+
+      function buildStarSprite(isMega) {
+        const size = 10;
+        const layers = [];
+        const cCore = isMega ? '#fecaca' : '#fef08a';
+        const cMid = isMega ? '#ef4444' : '#facc15';
+        const cEdge = isMega ? '#991b1b' : '#ca8a04';
+        for (let z = 0; z < 8; z++) {
+          layers.push(createSliceCanvas(size, (g) => {
+            const d = Math.abs(z - 3.5);
+            const col = d < 1.2 ? cCore : cMid;
+            if (d <= 1.6) {
+              g.rect(4, 1, 2, 8, col);
+              g.rect(1, 4, 8, 2, col);
+              g.rect(3, 3, 4, 4, cCore);
+            } else if (d <= 2.6) {
+              g.rect(4, 2, 2, 6, cMid);
+              g.rect(2, 4, 6, 2, cMid);
+            } else {
+              g.rect(4, 4, 2, 2, cEdge);
+            }
+          }));
+        }
+        return { size, layers };
+      }
+
+      const SPRITES = {
+        car: buildCarSprite(),
+        bunny: buildBunnySprite(),
+        pine: buildPineSprite(),
+        snowman: buildSnowmanSprite(),
+        star: buildStarSprite(false),
+        megaStar: buildStarSprite(true)
+      };
+
+      // =========================================================================
+      // Game State & World Setup
+      // =========================================================================
+      const canvas = document.getElementById('gameCanvas');
+      const ctx = canvas.getContext('2d');
+      const hudScore = document.getElementById('hudScore');
+      const hudCombo = document.getElementById('hudCombo');
+      const hudTime = document.getElementById('hudTime');
+      const hudBoostText = document.getElementById('hudBoostText');
+      const hudBoostFill = document.getElementById('hudBoostFill');
+      const hudBest = document.getElementById('hudBest');
+      const startOverlay = document.getElementById('startOverlay');
+      const resultOverlay = document.getElementById('resultOverlay');
+
+      const BEST_KEY = 'snow_drift_3d_best_v1';
+      let bestScore = Number(localStorage.getItem(BEST_KEY) || 0);
+      hudBest.textContent = bestScore.toLocaleString();
+
+      const input = { left: false, right: false, drift: false };
+
+      let mode = 'title'; // 'title' | 'playing' | 'result'
+      let selectedRacer = 'car';
+
+      const state = {
+        score: 0,
+        combo: 0,
+        maxCombo: 0,
+        comboTimer: 0,
+        starsCollected: 0,
+        smashedCount: 0,
+        timeLeft: PARAMS.roundDuration,
+        hitstop: 0,
+        shakeTime: 0,
+        shakeMag: 0,
+        flashAlpha: 0,
+        flashColor: '#ffffff',
+        camX: 0,
+        camY: 0,
+        worldTime: 0,
+        player: {
+          x: 0,
+          y: 80,
+          angle: -Math.PI / 2,
+          visualSlip: 0,
+          speed: 140,
+          driftCharge: 0,
+          chargeNotified: false,
+          turboTimer: 0,
+          invulnTimer: 0,
+          bounceZ: 0
+        },
+        trees: [],
+        snowmen: [],
+        stars: [],
+        particles: [],
+        skidMarks: [],
+        popups: [],
+        snowflakes: []
+      };
+
+      function initSnowflakes() {
+        state.snowflakes = [];
+        for (let i = 0; i < 42; i++) {
+          state.snowflakes.push({
+            x: Math.random(),
+            y: Math.random(),
+            r: 1.5 + Math.random() * 2,
+            vy: 0.08 + Math.random() * 0.14,
+            vx: -0.02 + Math.random() * 0.04
+          });
+        }
+      }
+      initSnowflakes();
+
+      function populateArena() {
+        state.trees = [];
+        state.snowmen = [];
+        state.stars = [];
+        state.particles = [];
+        state.skidMarks = [];
+        state.popups = [];
+
+        // Ring of decorative & obstacle pine trees
+        const treeCoords = [
+          [-210, -190], [0, -240], [220, -180],
+          [-260, 20], [260, 10],
+          [-190, 210], [20, 250], [210, 200],
+          [-105, -75], [115, -65], [-95, 95], [125, 105]
+        ];
+        treeCoords.forEach(([x, y]) => {
+          state.trees.push({ x, y, r: 22 });
+        });
+
+        // Smashable snowmen
+        for (let i = 0; i < 7; i++) {
+          spawnSnowman();
+        }
+
+        // Collectible stars (8 normal + 2 high-risk mega stars)
+        for (let i = 0; i < 8; i++) spawnStar(false);
+        for (let i = 0; i < 2; i++) spawnStar(true);
+      }
+
+      function isSpotClear(x, y, minDist) {
+        if (Math.hypot(x - state.player.x, y - state.player.y) < 75) return false;
+        for (const t of state.trees) {
+          if (Math.hypot(x - t.x, y - t.y) < minDist) return false;
+        }
+        return true;
+      }
+
+      function spawnSnowman() {
+        for (let attempt = 0; attempt < 30; attempt++) {
+          const ang = Math.random() * Math.PI * 2;
+          const dist = 90 + Math.random() * (PARAMS.worldRadius - 140);
+          const x = Math.cos(ang) * dist;
+          const y = Math.sin(ang) * dist;
+          if (isSpotClear(x, y, 52)) {
+            state.snowmen.push({ x, y, r: 17, angle: Math.random() * Math.PI * 2, respawn: 0 });
+            return;
+          }
+        }
+      }
+
+      function spawnStar(isMega) {
+        if (isMega && state.trees.length > 0) {
+          // Risk-reward placement: right next to a pine tree
+          for (let attempt = 0; attempt < 25; attempt++) {
+            const tree = state.trees[Math.floor(Math.random() * state.trees.length)];
+            const ang = Math.random() * Math.PI * 2;
+            const x = tree.x + Math.cos(ang) * 44;
+            const y = tree.y + Math.sin(ang) * 44;
+            if (Math.hypot(x, y) < PARAMS.worldRadius - 40 && Math.hypot(x - state.player.x, y - state.player.y) > 90) {
+              state.stars.push({ x, y, isMega: true, phase: Math.random() * 6.28 });
+              return;
+            }
+          }
+        }
+        for (let attempt = 0; attempt < 30; attempt++) {
+          const ang = Math.random() * Math.PI * 2;
+          const dist = 70 + Math.random() * (PARAMS.worldRadius - 110);
+          const x = Math.cos(ang) * dist;
+          const y = Math.sin(ang) * dist;
+          if (isSpotClear(x, y, 42)) {
+            state.stars.push({ x, y, isMega: false, phase: Math.random() * 6.28 });
+            return;
+          }
+        }
+      }
+
+      function resetRound(startNow) {
+        const spec = PARAMS.racers[selectedRacer];
+        state.score = 0;
+        state.combo = 0;
+        state.maxCombo = 0;
+        state.comboTimer = 0;
+        state.starsCollected = 0;
+        state.smashedCount = 0;
+        state.timeLeft = PARAMS.roundDuration;
+        state.hitstop = 0;
+        state.shakeTime = 0;
+        state.shakeMag = 0;
+        state.flashAlpha = 0;
+        state.player = {
+          x: 0,
+          y: 120,
+          angle: -Math.PI / 2,
+          visualSlip: 0,
+          speed: spec.baseSpeed,
+          driftCharge: 0,
+          chargeNotified: false,
+          turboTimer: 0,
+          invulnTimer: 0,
+          bounceZ: 0
+        };
+        state.camX = state.player.x;
+        state.camY = state.player.y;
+        populateArena();
+
+        if (startNow) {
+          mode = 'playing';
+          startOverlay.hidden = true;
+          resultOverlay.hidden = true;
+          sfx.playChargeReady();
+        } else {
+          mode = 'title';
+          startOverlay.hidden = false;
+          resultOverlay.hidden = true;
+        }
+        syncHud();
+      }
+
+      function triggerHitstop(sec, shakeMag = 0, shakeTime = 0, flashColor = null, flashAlpha = 0) {
+        state.hitstop = Math.max(state.hitstop, sec);
+        if (!reducedMotion && shakeMag > 0) {
+          state.shakeMag = Math.max(state.shakeMag, shakeMag);
+          state.shakeTime = Math.max(state.shakeTime, shakeTime);
+        }
+        if (flashColor && flashAlpha > 0) {
+          state.flashColor = flashColor;
+          state.flashAlpha = Math.max(state.flashAlpha, flashAlpha);
+        }
+      }
+
+      function addBurst(x, y, color, outline, count, speed = 130) {
+        for (let i = 0; i < count; i++) {
+          const a = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.5;
+          const sp = speed * (0.45 + Math.random() * 0.75);
+          state.particles.push({
+            x, y,
+            vx: Math.cos(a) * sp,
+            vy: Math.sin(a) * sp,
+            life: 0.25 + Math.random() * 0.22,
+            maxLife: 0.47,
+            size: 4 + Math.random() * 4,
+            color,
+            outline
+          });
+        }
+      }
+
+      function addPopup(x, y, text, color) {
+        state.popups.push({ x, y, text, color, life: 0.75, maxLife: 0.75 });
+      }
+
+      function finishRound() {
+        mode = 'result';
+        const isBest = state.score > bestScore;
+        if (isBest) {
+          bestScore = state.score;
+          localStorage.setItem(BEST_KEY, String(bestScore));
+          hudBest.textContent = bestScore.toLocaleString();
+        }
+        sfx.playFinish(isBest);
+
+        let rank = 'B ランク — まずはドリフト溜め解放を狙おう';
+        if (state.score >= 7000) rank = 'S+ ランク — 雪原ドリフトマスター！';
+        else if (state.score >= 4500) rank = 'S ランク — 鮮やかなターボ連鎖！';
+        else if (state.score >= 2500) rank = 'A ランク — コンボの勘所を掴んでいます';
+
+        document.getElementById('resultTitle').textContent = isBest ? 'ハイスコア更新！' : 'フィニッシュ';
+        document.getElementById('resultRank').textContent = rank;
+        document.getElementById('resScore').textContent = state.score.toLocaleString();
+        document.getElementById('resCombo').textContent = `${state.maxCombo} 連鎖`;
+        document.getElementById('resStars').textContent = `${state.starsCollected} 個`;
+        document.getElementById('resSmash').textContent = `${state.smashedCount} 体`;
+        resultOverlay.hidden = false;
+      }
+
+      function syncHud() {
+        const mult = Math.min(PARAMS.maxComboMult, 1 + Math.floor(state.combo / 3));
+        hudScore.textContent = state.score.toLocaleString();
+        hudCombo.textContent = state.combo > 0 ? `x${mult} (${state.combo})` : 'x1';
+        hudTime.textContent = `${Math.max(0, state.timeLeft).toFixed(1)}s`;
+        hudTime.classList.toggle('is-warn', state.timeLeft <= 10 && mode === 'playing');
+
+        const pct = Math.round(state.player.driftCharge * 100);
+        hudBoostText.textContent = state.player.turboTimer > 0 ? 'TURBO' : `${pct}%`;
+        hudBoostFill.style.width = `${state.player.turboTimer > 0 ? 100 : pct}%`;
+        hudBoostFill.style.backgroundColor =
+          state.player.turboTimer > 0 ? '#dc2626' : (pct >= 100 ? '#d97706' : '#0f5c6e');
+      }
+
+      // =========================================================================
+      // Simulation Update
+      // =========================================================================
+      function update(dt) {
+        state.worldTime += dt;
+
+        // Ambient snow
+        for (const f of state.snowflakes) {
+          f.y += f.vy * dt;
+          f.x += f.vx * dt;
+          if (f.y > 1) { f.y = 0; f.x = Math.random(); }
+          if (f.x < 0) f.x = 1;
+          if (f.x > 1) f.x = 0;
+        }
+
+        if (state.flashAlpha > 0) {
+          state.flashAlpha = Math.max(0, state.flashAlpha - dt * 3.8);
+        }
+
+        if (state.shakeTime > 0) {
+          state.shakeTime = Math.max(0, state.shakeTime - dt);
+        }
+
+        // Particles & popups keep moving even during brief hitstop (Sakurai rule)
+        for (let i = state.particles.length - 1; i >= 0; i--) {
+          const pt = state.particles[i];
+          pt.x += pt.vx * dt;
+          pt.y += pt.vy * dt;
+          pt.vx *= 0.92;
+          pt.vy *= 0.92;
+          pt.life -= dt;
+          if (pt.life <= 0) state.particles.splice(i, 1);
+        }
+        for (let i = state.popups.length - 1; i >= 0; i--) {
+          const pop = state.popups[i];
+          pop.y -= 34 * dt;
+          pop.life -= dt;
+          if (pop.life <= 0) state.popups.splice(i, 1);
+        }
+
+        if (mode === 'title') {
+          // Live attract orbit in background
+          const a = state.worldTime * 0.55;
+          state.player.x = Math.cos(a) * 145;
+          state.player.y = Math.sin(a) * 115;
+          state.player.angle = a + Math.PI / 2;
+          state.camX += (state.player.x - state.camX) * 0.08;
+          state.camY += (state.player.y - state.camY) * 0.08;
+          return;
+        }
+
+        if (mode !== 'playing') return;
+
+        // Hitstop pause for crisp impact feel
+        if (state.hitstop > 0) {
+          state.hitstop = Math.max(0, state.hitstop - dt);
+          return;
+        }
+
+        state.timeLeft -= dt;
+        if (state.timeLeft <= 0) {
+          state.timeLeft = 0;
+          syncHud();
+          finishRound();
+          return;
+        }
+
+        if (state.comboTimer > 0) {
+          state.comboTimer -= dt;
+          if (state.comboTimer <= 0) {
+            state.combo = 0;
+          }
+        }
+
+        const p = state.player;
+        const spec = PARAMS.racers[selectedRacer];
+
+        if (p.invulnTimer > 0) p.invulnTimer = Math.max(0, p.invulnTimer - dt);
+        if (p.turboTimer > 0) p.turboTimer = Math.max(0, p.turboTimer - dt);
+
+        const steer = (input.right ? 1 : 0) - (input.left ? 1 : 0);
+        const isDrifting = input.drift && p.turboTimer <= 0;
+
+        // Steering & Drift Charge
+        const turnRate = isDrifting ? spec.driftTurnRate : spec.turnRate;
+        p.angle += steer * turnRate * dt;
+
+        const targetSlip = isDrifting ? steer * 0.48 : steer * 0.14;
+        p.visualSlip += (targetSlip - p.visualSlip) * Math.min(1, dt * 12);
+
+        if (isDrifting) {
+          const chargeBoost = steer !== 0 ? 1.25 : 0.72;
+          p.driftCharge = Math.min(1, p.driftCharge + spec.chargeRate * chargeBoost * dt);
+          if (p.driftCharge >= 1 && !p.chargeNotified) {
+            p.chargeNotified = true;
+            sfx.playChargeReady();
+            addBurst(p.x, p.y, '#facc15', '#0f172a', 8, 90);
+          }
+          // Drift sparks
+          if (Math.random() < 0.75) {
+            const sparkCol = p.driftCharge >= 1 ? '#f97316' : '#38bdf8';
+            state.particles.push({
+              x: p.x - Math.cos(p.angle) * 14,
+              y: p.y - Math.sin(p.angle) * 14,
+              vx: -Math.cos(p.angle) * 50 + (Math.random() - 0.5) * 60,
+              vy: -Math.sin(p.angle) * 50 + (Math.random() - 0.5) * 60,
+              life: 0.22,
+              maxLife: 0.22,
+              size: 4,
+              color: sparkCol,
+              outline: '#0f172a'
+            });
+          }
+          state.skidMarks.push({ x: p.x, y: p.y, life: 1.4 });
+          if (state.skidMarks.length > 90) state.skidMarks.shift();
+        } else if (p.driftCharge > 0) {
+          // Released drift button
+          if (p.driftCharge >= 0.45) {
+            const power = p.driftCharge;
+            p.turboTimer = spec.turboDuration * (0.65 + power * 0.55);
+            sfx.playTurbo();
+            triggerHitstop(0.045, 5, 0.14, '#fef08a', 0.16);
+            addBurst(p.x, p.y, '#fb923c', '#0f172a', 12, 170);
+            addPopup(p.x, p.y - 24, power >= 0.98 ? 'MAX TURBO' : 'TURBO', '#d97706');
+          }
+          p.driftCharge = 0;
+          p.chargeNotified = false;
+        }
+
+        // Target speed
+        const targetSpeed =
+          p.turboTimer > 0 ? spec.turboSpeed : (isDrifting ? spec.baseSpeed * spec.driftSlowFactor : spec.baseSpeed);
+        p.speed += (targetSpeed - p.speed) * Math.min(1, dt * 8);
+
+        // Move player
+        p.x += Math.cos(p.angle) * p.speed * dt;
+        p.y += Math.sin(p.angle) * p.speed * dt;
+        p.bounceZ = Math.abs(Math.sin(state.worldTime * (p.turboTimer > 0 ? 18 : 11))) * (selectedRacer === 'bunny' ? 4.5 : 1.5);
+
+        // Arena circular boundary bounce
+        const distFromCenter = Math.hypot(p.x, p.y);
+        if (distFromCenter > PARAMS.worldRadius - 20) {
+          const nx = p.x / distFromCenter;
+          const ny = p.y / distFromCenter;
+          p.x = nx * (PARAMS.worldRadius - 20);
+          p.y = ny * (PARAMS.worldRadius - 20);
+          const dot = Math.cos(p.angle) * nx + Math.sin(p.angle) * ny;
+          if (dot > 0) {
+            const rx = Math.cos(p.angle) - 2 * dot * nx;
+            const ry = Math.sin(p.angle) - 2 * dot * ny;
+            p.angle = Math.atan2(ry, rx);
+          }
+        }
+
+        // Camera look-ahead (Sakurai principle: lead the camera in movement direction)
+        const lead = p.turboTimer > 0 ? 64 : 38;
+        const targetCamX = p.x + Math.cos(p.angle) * lead;
+        const targetCamY = p.y + Math.sin(p.angle) * lead;
+        state.camX += (targetCamX - state.camX) * Math.min(1, dt * 6.5);
+        state.camY += (targetCamY - state.camY) * Math.min(1, dt * 6.5);
+
+        // Fade skid marks
+        for (let i = state.skidMarks.length - 1; i >= 0; i--) {
+          state.skidMarks[i].life -= dt;
+          if (state.skidMarks[i].life <= 0) state.skidMarks.splice(i, 1);
+        }
+
+        // Collect stars (with gentle magnetic pull for good feel)
+        for (let i = state.stars.length - 1; i >= 0; i--) {
+          const st = state.stars[i];
+          const d = Math.hypot(st.x - p.x, st.y - p.y);
+          if (d < spec.magnetRadius) {
+            const pull = (1 - d / spec.magnetRadius) * 260 * dt;
+            st.x += ((p.x - st.x) / Math.max(1, d)) * pull;
+            st.y += ((p.y - st.y) / Math.max(1, d)) * pull;
+          }
+          if (d < 22 * PARAMS.starCollectRadiusScale) {
+            state.combo++;
+            state.maxCombo = Math.max(state.maxCombo, state.combo);
+            state.comboTimer = PARAMS.comboWindow;
+            state.starsCollected++;
+            const mult = Math.min(PARAMS.maxComboMult, 1 + Math.floor(state.combo / 3));
+            const basePts = st.isMega ? 300 : 100;
+            const gained = basePts * mult;
+            state.score += gained;
+
+            if (st.isMega) {
+              state.timeLeft = Math.min(PARAMS.roundDuration, state.timeLeft + 2.0);
+              sfx.playMegaStar();
+              triggerHitstop(0.06, 6, 0.16, '#fecaca', 0.18);
+              addBurst(st.x, st.y, '#ef4444', '#0f172a', 14, 175);
+              addPopup(st.x, st.y - 18, `+${gained}  +2s`, '#b91c1c');
+            } else {
+              sfx.playStar(state.combo);
+              addBurst(st.x, st.y, '#facc15', '#0f172a', 8, 120);
+              addPopup(st.x, st.y - 16, `+${gained}`, '#b45309');
+            }
+
+            const wasMega = st.isMega;
+            state.stars.splice(i, 1);
+            spawnStar(wasMega);
+          }
+        }
+
+        // Collide with Snowmen (Smash during turbo, bounce otherwise)
+        for (const sm of state.snowmen) {
+          if (sm.respawn > 0) {
+            sm.respawn -= dt;
+            continue;
+          }
+          const d = Math.hypot(sm.x - p.x, sm.y - p.y);
+          if (d < sm.r + 16) {
+            if (p.turboTimer > 0) {
+              sm.respawn = 5.5;
+              state.smashedCount++;
+              state.combo++;
+              state.maxCombo = Math.max(state.maxCombo, state.combo);
+              state.comboTimer = PARAMS.comboWindow;
+              const mult = Math.min(PARAMS.maxComboMult, 1 + Math.floor(state.combo / 3));
+              const gained = 250 * mult;
+              state.score += gained;
+              sfx.playSmash();
+              triggerHitstop(0.065, 8, 0.18, '#ffffff', 0.22);
+              addBurst(sm.x, sm.y, '#ffffff', '#0f172a', 16, 200);
+              addPopup(sm.x, sm.y - 20, `SMASH +${gained}`, '#0f5c6e');
+            } else if (p.invulnTimer <= 0) {
+              p.invulnTimer = 0.65;
+              p.speed = 60;
+              p.driftCharge = 0;
+              state.combo = 0;
+              const nx = (p.x - sm.x) / Math.max(1, d);
+              const ny = (p.y - sm.y) / Math.max(1, d);
+              p.x += nx * 16;
+              p.y += ny * 16;
+              sfx.playBump();
+              triggerHitstop(0.08, 9, 0.20, '#ef4444', 0.20);
+              addBurst(p.x, p.y, '#cbd5e1', '#0f172a', 10, 120);
+              addPopup(p.x, p.y - 18, 'BUMP', '#b91c1c');
+            }
+          }
+        }
+
+        // Collide with Pine Trees (forgiving hitbox)
+        for (const t of state.trees) {
+          const hitR = t.r * PARAMS.treeHitRadiusScale + 12;
+          const d = Math.hypot(t.x - p.x, t.y - p.y);
+          if (d < hitR) {
+            const nx = (p.x - t.x) / Math.max(1, d);
+            const ny = (p.y - t.y) / Math.max(1, d);
+            p.x = t.x + nx * (hitR + 2);
+            p.y = t.y + ny * (hitR + 2);
+            if (p.invulnTimer <= 0) {
+              p.invulnTimer = 0.7;
+              p.speed = 55;
+              p.turboTimer = 0;
+              p.driftCharge = 0;
+              state.combo = 0;
+              sfx.playBump();
+              triggerHitstop(0.09, 11, 0.22, '#ef4444', 0.24);
+              addBurst(p.x, p.y, '#22c55e', '#0f172a', 10, 130);
+              addPopup(p.x, p.y - 20, 'CRASH', '#b91c1c');
+            }
+          }
+        }
+
+        syncHud();
+      }
+
+      // =========================================================================
+      // Pseudo-3D Sprite-Stacking Renderer
+      // =========================================================================
+      function drawStackedSprite(sprite, sx, sy, angle, scale, layerStep, zLift = 0) {
+        const layers = sprite.layers;
+        const drawSize = sprite.size * scale;
+        ctx.save();
+        ctx.imageSmoothingEnabled = false;
+        for (let z = 0; z < layers.length; z++) {
+          ctx.save();
+          ctx.translate(sx, sy - zLift - z * layerStep);
+          ctx.rotate(angle);
+          ctx.drawImage(layers[z], -drawSize / 2, -drawSize / 2, drawSize, drawSize);
+          ctx.restore();
+        }
+        ctx.restore();
+      }
+
+      function render() {
+        const rect = canvas.getBoundingClientRect();
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const w = Math.max(300, Math.round(rect.width));
+        const h = Math.max(200, Math.round(rect.height));
+        if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
+          canvas.width = w * dpr;
+          canvas.height = h * dpr;
+        }
+
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.imageSmoothingEnabled = false;
+
+        // Shake offset
+        let shakeX = 0;
+        let shakeY = 0;
+        if (state.shakeTime > 0 && !reducedMotion) {
+          const mag = state.shakeMag * (state.shakeTime / 0.22);
+          shakeX = (Math.random() - 0.5) * mag * 2;
+          shakeY = (Math.random() - 0.5) * mag * 2;
+        }
+
+        const cx = w / 2 - state.camX + shakeX;
+        const cy = h / 2 - state.camY + shakeY;
+
+        // Sky / out-of-bounds snow slate
+        ctx.fillStyle = '#cbd5e1';
+        ctx.fillRect(0, 0, w, h);
+
+        // Circular snow arena
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, PARAMS.worldRadius, 0, Math.PI * 2);
+        ctx.fillStyle = '#edf5ff';
+        ctx.fill();
+        ctx.lineWidth = 6;
+        ctx.strokeStyle = '#94a3b8';
+        ctx.stroke();
+
+        // Subtle racing track ring for spatial reference
+        ctx.beginPath();
+        ctx.arc(cx, cy, 240, 0, Math.PI * 2);
+        ctx.strokeStyle = '#dbeafe';
+        ctx.lineWidth = 36;
+        ctx.stroke();
+
+        // Skid marks
+        for (const m of state.skidMarks) {
+          ctx.fillStyle = `rgba(100, 116, 139, ${Math.min(0.45, m.life * 0.35)})`;
+          ctx.fillRect(cx + m.x - 3, cy + m.y - 3, 6, 6);
+        }
+        ctx.restore();
+
+        // Depth-sorted render queue (Painter's algorithm by world Y)
+        const queue = [];
+
+        for (const t of state.trees) {
+          queue.push({ y: t.y, type: 'tree', obj: t });
+        }
+        for (const sm of state.snowmen) {
+          if (sm.respawn <= 0) queue.push({ y: sm.y, type: 'snowman', obj: sm });
+        }
+        for (const st of state.stars) {
+          queue.push({ y: st.y, type: 'star', obj: st });
+        }
+        queue.push({ y: state.player.y, type: 'player', obj: state.player });
+
+        queue.sort((a, b) => a.y - b.y);
+
+        const spec = PARAMS.racers[selectedRacer];
+
+        for (const item of queue) {
+          const sx = cx + item.obj.x;
+          const sy = cy + item.obj.y;
+          // Frustum cull
+          if (sx < -90 || sx > w + 90 || sy < -90 || sy > h + 90) continue;
+
+          if (item.type === 'tree') {
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.16)';
+            ctx.beginPath();
+            ctx.ellipse(sx, sy + 5, 20, 12, 0, 0, Math.PI * 2);
+            ctx.fill();
+            drawStackedSprite(SPRITES.pine, sx, sy, 0.25, 2.7, 2.0);
+          } else if (item.type === 'snowman') {
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.16)';
+            ctx.beginPath();
+            ctx.ellipse(sx, sy + 4, 15, 9, 0, 0, Math.PI * 2);
+            ctx.fill();
+            drawStackedSprite(SPRITES.snowman, sx, sy, item.obj.angle, 2.6, 1.85);
+          } else if (item.type === 'star') {
+            const bob = 10 + Math.sin(state.worldTime * 4.5 + item.obj.phase) * 4;
+            ctx.fillStyle = item.obj.isMega ? 'rgba(220, 38, 38, 0.22)' : 'rgba(202, 138, 4, 0.22)';
+            ctx.beginPath();
+            ctx.ellipse(sx, sy + 4, item.obj.isMega ? 14 : 11, 7, 0, 0, Math.PI * 2);
+            ctx.fill();
+            drawStackedSprite(
+              item.obj.isMega ? SPRITES.megaStar : SPRITES.star,
+              sx, sy,
+              state.worldTime * 2.4 + item.obj.phase,
+              item.obj.isMega ? 2.8 : 2.3,
+              1.6,
+              bob
+            );
+          } else if (item.type === 'player') {
+            const p = item.obj;
+            // Turbo aura ring
+            if (p.turboTimer > 0) {
+              ctx.strokeStyle = '#f97316';
+              ctx.lineWidth = 3;
+              ctx.beginPath();
+              ctx.ellipse(sx, sy + 3, 28, 18, 0, 0, Math.PI * 2);
+              ctx.stroke();
+            }
+            // Ground shadow
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.24)';
+            ctx.beginPath();
+            ctx.ellipse(sx, sy + 4, 22, 13, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Blink on invulnerability
+            const blinkSkip = p.invulnTimer > 0 && Math.floor(state.worldTime * 20) % 2 === 0;
+            if (!blinkSkip) {
+              // Model nose faces -Y, so add +PI/2 to align with movement angle
+              const drawAngle = p.angle + Math.PI / 2 + p.visualSlip;
+              drawStackedSprite(
+                SPRITES[selectedRacer],
+                sx, sy,
+                drawAngle,
+                spec.scale,
+                spec.layerStep,
+                p.bounceZ
+              );
+            }
+          }
+        }
+
+        // Crisp high-contrast particles (Sakurai rule: dark outline so visible on bright snow)
+        for (const pt of state.particles) {
+          const sx = cx + pt.x;
+          const sy = cy + pt.y;
+          const s = pt.size * (pt.life / pt.maxLife);
+          ctx.fillStyle = pt.outline;
+          ctx.fillRect(sx - s / 2 - 1, sy - s / 2 - 1, s + 2, s + 2);
+          ctx.fillStyle = pt.color;
+          ctx.fillRect(sx - s / 2, sy - s / 2, s, s);
+        }
+
+        // Floating score popups
+        ctx.font = '700 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+        ctx.textAlign = 'center';
+        for (const pop of state.popups) {
+          const sx = cx + pop.x;
+          const sy = cy + pop.y;
+          ctx.lineWidth = 3;
+          ctx.strokeStyle = '#ffffff';
+          ctx.strokeText(pop.text, sx, sy);
+          ctx.fillStyle = pop.color;
+          ctx.fillText(pop.text, sx, sy);
+        }
+
+        // Ambient falling snow overlay
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.72)';
+        for (const f of state.snowflakes) {
+          ctx.fillRect(f.x * w, f.y * h, f.r, f.r);
+        }
+
+        // Impact flash
+        if (state.flashAlpha > 0) {
+          ctx.fillStyle = state.flashColor;
+          ctx.globalAlpha = state.flashAlpha;
+          ctx.fillRect(0, 0, w, h);
+          ctx.globalAlpha = 1;
+        }
+      }
+
+      // =========================================================================
+      // Main Loop (Fixed-safe delta cap)
+      // =========================================================================
+      let lastTime = performance.now();
+      function frame(now) {
+        const dt = Math.min(0.05, (now - lastTime) / 1000);
+        lastTime = now;
+        update(dt);
+        render();
+        requestAnimationFrame(frame);
+      }
+
+      // =========================================================================
+      // Input & UI Bindings
+      // =========================================================================
+      window.addEventListener('keydown', (e) => {
+        if (e.code === 'ArrowLeft' || e.code === 'KeyA') input.left = true;
+        if (e.code === 'ArrowRight' || e.code === 'KeyD') input.right = true;
+        if (e.code === 'Space') {
+          if (mode === 'playing') e.preventDefault();
+          input.drift = true;
+        }
+        if (e.code === 'Enter' && (mode === 'title' || mode === 'result')) {
+          e.preventDefault();
+          resetRound(true);
+        }
+        if (e.code === 'KeyR' && mode !== 'title') {
+          e.preventDefault();
+          resetRound(true);
+        }
+      });
+
+      window.addEventListener('keyup', (e) => {
+        if (e.code === 'ArrowLeft' || e.code === 'KeyA') input.left = false;
+        if (e.code === 'ArrowRight' || e.code === 'KeyD') input.right = false;
+        if (e.code === 'Space') input.drift = false;
+      });
+
+      function bindHold(el, key) {
+        const down = (e) => {
+          e.preventDefault();
+          input[key] = true;
+          el.classList.add('is-active');
+        };
+        const up = () => {
+          input[key] = false;
+          el.classList.remove('is-active');
+        };
+        el.addEventListener('pointerdown', down);
+        el.addEventListener('pointerup', up);
+        el.addEventListener('pointerleave', up);
+        el.addEventListener('pointercancel', up);
+      }
+
+      bindHold(document.getElementById('btnLeft'), 'left');
+      bindHold(document.getElementById('btnRight'), 'right');
+      bindHold(document.getElementById('btnDrift'), 'drift');
+
+      document.getElementById('startBtn').addEventListener('click', () => resetRound(true));
+      document.getElementById('retryBtn').addEventListener('click', () => resetRound(true));
+      document.getElementById('restartTopBtn').addEventListener('click', () => resetRound(true));
+
+      const muteBtn = document.getElementById('muteBtn');
+      muteBtn.addEventListener('click', () => {
+        sfx.muted = !sfx.muted;
+        muteBtn.setAttribute('aria-pressed', String(sfx.muted));
+        muteBtn.textContent = sfx.muted ? '効果音: オフ' : '効果音: オン';
+      });
+
+      document.querySelectorAll('input[name="racer"]').forEach((radio) => {
+        radio.addEventListener('change', (e) => {
+          selectedRacer = e.target.value;
+          if (mode === 'title') syncHud();
+        });
+      });
+
+      resetRound(false);
+      requestAnimationFrame(frame);
+    })();
+  </script>
+</body>
+</html>
