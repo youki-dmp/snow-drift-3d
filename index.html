@@ -313,36 +313,114 @@
 
     .touch-controls {
       display: flex;
-      flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
+      gap: 16px;
+      padding: 12px 16px;
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      user-select: none;
     }
 
-    .touch-pad {
-      display: flex;
-      flex-wrap: wrap;
+    .dpad-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 44px);
+      grid-template-rows: repeat(3, 44px);
       gap: 4px;
+      flex-shrink: 0;
     }
 
-    .touch-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .touch-btn {
-      min-width: 48px;
-      min-height: 44px;
-      padding: 8px 12px;
-      font-size: 13px;
+    .dpad-btn {
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      font-size: 16px;
+      line-height: 1;
+      border-radius: var(--radius-sm);
+      background-color: #24332a;
+      border-color: #16211a;
+      color: #f4f7f2;
       touch-action: manipulation;
     }
 
-    .touch-btn.is-active {
-      background-color: var(--accent);
-      border-color: var(--accent);
+    .dpad-up {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .dpad-left {
+      grid-column: 1;
+      grid-row: 2;
+    }
+
+    .dpad-center {
+      grid-column: 2;
+      grid-row: 2;
+      border-radius: var(--radius-sm);
+      background-color: #1b2720;
+      border: 1px solid #16211a;
+    }
+
+    .dpad-right {
+      grid-column: 3;
+      grid-row: 2;
+    }
+
+    .dpad-down {
+      grid-column: 2;
+      grid-row: 3;
+    }
+
+    .ab-pad {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .ab-slot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .ab-btn {
+      width: 56px;
+      height: 56px;
+      padding: 0;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 18px;
+      font-weight: 700;
+      touch-action: manipulation;
+    }
+
+    .ab-btn-b {
+      background-color: #3a4a40;
+      border-color: #24332a;
       color: #ffffff;
+    }
+
+    .ab-btn-a {
+      background-color: var(--accent);
+      border-color: var(--accent-hover);
+      color: #ffffff;
+    }
+
+    .ab-caption {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ink-muted);
+      line-height: 1.2;
+    }
+
+    .dpad-btn.is-active,
+    .ab-btn.is-active {
+      background-color: var(--gold);
+      border-color: #8a5a05;
+      color: #141c17;
     }
 
     .side-col {
@@ -436,14 +514,28 @@
         min-height: 240px;
       }
 
-      .touch-pad,
-      .touch-actions {
-        width: 100%;
+      .touch-controls {
+        padding: 8px 12px;
+        gap: 8px;
       }
 
-      .touch-btn {
-        flex: 1;
-        min-width: 0;
+      .dpad-grid {
+        grid-template-columns: repeat(3, 40px);
+        grid-template-rows: repeat(3, 40px);
+      }
+
+      .dpad-btn {
+        width: 40px;
+        height: 40px;
+      }
+
+      .ab-pad {
+        gap: 8px;
+      }
+
+      .ab-btn {
+        width: 52px;
+        height: 52px;
       }
     }
   </style>
@@ -535,16 +627,23 @@
           </div>
         </div>
 
-        <div class="touch-controls" aria-label="タッチ・クリック操作">
-          <div class="touch-pad" role="group" aria-label="移動ボタン">
-            <button type="button" class="btn touch-btn" id="btnUp" aria-label="上へ移動">W</button>
-            <button type="button" class="btn touch-btn" id="btnLeft" aria-label="左へ移動">A</button>
-            <button type="button" class="btn touch-btn" id="btnDown" aria-label="下へ移動">S</button>
-            <button type="button" class="btn touch-btn" id="btnRight" aria-label="右へ移動">D</button>
+        <div class="touch-controls" aria-label="ファミコン風コントローラー操作">
+          <div class="dpad-grid" role="group" aria-label="十字キー">
+            <button type="button" class="btn dpad-btn dpad-up" id="btnUp" aria-label="上へ移動">▲</button>
+            <button type="button" class="btn dpad-btn dpad-left" id="btnLeft" aria-label="左へ移動">◀</button>
+            <div class="dpad-center" aria-hidden="true"></div>
+            <button type="button" class="btn dpad-btn dpad-right" id="btnRight" aria-label="右へ移動">▶</button>
+            <button type="button" class="btn dpad-btn dpad-down" id="btnDown" aria-label="下へ移動">▼</button>
           </div>
-          <div class="touch-actions">
-            <button type="button" class="btn touch-btn" id="btnRoll" aria-label="前転ダッシュ回避">回避 (Shift)</button>
-            <button type="button" class="btn btn-primary touch-btn" id="btnAttack" aria-label="剣斬りと長押し回転斬り">剣 / 回転斬り (Space)</button>
+          <div class="ab-pad" role="group" aria-label="B・Aアクションボタン">
+            <div class="ab-slot">
+              <button type="button" class="btn ab-btn ab-btn-b" id="btnRoll" aria-label="Bボタン：前転ダッシュ回避">B</button>
+              <span class="ab-caption">回避</span>
+            </div>
+            <div class="ab-slot">
+              <button type="button" class="btn ab-btn ab-btn-a" id="btnAttack" aria-label="Aボタン：剣斬りと長押し回転斬り">A</button>
+              <span class="ab-caption">剣・回転</span>
+            </div>
           </div>
         </div>
       </section>
