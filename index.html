@@ -3,20 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SNOW DRIFT 3D — Sprite Stacking Arcade</title>
+  <title>EMERALD BLADE 3D — 草原スプライトスタッキング・アクション</title>
   <style>
     :root {
-      --bg: #eef2f7;
+      --bg: #edf3ee;
       --surface: #ffffff;
-      --surface-subtle: #e2e8f0;
-      --border: #cbd5e1;
-      --ink: #0f172a;
-      --ink-muted: #475569;
-      --accent: #0f5c6e;
-      --accent-hover: #0b4654;
-      --accent-soft: #e0f2fe;
+      --surface-subtle: #dfe9e1;
+      --border: #bfd0c3;
+      --ink: #112018;
+      --ink-muted: #425a4b;
+      --accent: #146c43;
+      --accent-hover: #0f5232;
+      --accent-soft: #e2f3e8;
+      --gold: #a16207;
       --danger: #b91c1c;
-      --gold: #b45309;
       --radius-sm: 4px;
       --radius-md: 8px;
       --radius-lg: 12px;
@@ -43,7 +43,7 @@
     }
 
     .app {
-      max-width: 1160px;
+      max-width: 1180px;
       margin: 0 auto;
       padding: 16px;
       display: flex;
@@ -117,7 +117,7 @@
     @media (hover: hover) {
       .btn:hover {
         background-color: var(--surface-subtle);
-        border-color: #94a3b8;
+        border-color: #8aa893;
       }
 
       .btn-primary:hover {
@@ -156,27 +156,28 @@
 
     .hud-value {
       font-family: var(--font-mono);
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 700;
-      line-height: 1.2;
+      line-height: 1.25;
       color: var(--ink);
       font-variant-numeric: tabular-nums;
       overflow-wrap: anywhere;
+    }
+
+    .hud-value.is-heart {
+      color: var(--danger);
+      letter-spacing: 2px;
     }
 
     .hud-value.is-accent {
       color: var(--accent);
     }
 
-    .hud-value.is-warn {
-      color: var(--danger);
-    }
-
     .hud-value.is-gold {
       color: var(--gold);
     }
 
-    .boost-track {
+    .charge-track {
       width: 100%;
       height: 8px;
       background-color: var(--surface-subtle);
@@ -185,11 +186,11 @@
       margin-top: 4px;
     }
 
-    .boost-fill {
+    .charge-fill {
       height: 100%;
       width: 0%;
       background-color: var(--accent);
-      transition: width 60ms linear, background-color 120ms ease;
+      transition: width 50ms linear, background-color 120ms ease;
     }
 
     .main-grid {
@@ -211,7 +212,7 @@
       width: 100%;
       aspect-ratio: 16 / 10;
       min-height: 300px;
-      background-color: #dbeafe;
+      background-color: #2f7d32;
       border: 1px solid var(--border);
       border-radius: var(--radius-lg);
       overflow: hidden;
@@ -225,6 +226,7 @@
       height: 100%;
       image-rendering: pixelated;
       image-rendering: crisp-edges;
+      cursor: crosshair;
     }
 
     .stage-overlay {
@@ -234,7 +236,7 @@
       align-items: center;
       justify-content: center;
       padding: 20px;
-      background-color: rgba(15, 23, 42, 0.78);
+      background-color: rgba(12, 26, 18, 0.78);
     }
 
     .stage-overlay[hidden] {
@@ -243,7 +245,7 @@
 
     .overlay-sheet {
       width: 100%;
-      max-width: 380px;
+      max-width: 400px;
       padding: 8px 0;
       display: flex;
       flex-direction: column;
@@ -263,7 +265,7 @@
     .overlay-text {
       margin: 0;
       font-size: 14px;
-      color: #e2e8f0;
+      color: #e2f3e8;
       line-height: 1.55;
     }
 
@@ -285,7 +287,7 @@
 
     .result-row dt {
       font-size: 12px;
-      color: #cbd5e1;
+      color: #c5dfd0;
     }
 
     .result-row dd {
@@ -317,16 +319,23 @@
       gap: 8px;
     }
 
-    .touch-group {
+    .touch-pad {
       display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .touch-actions {
+      display: flex;
+      flex-wrap: wrap;
       gap: 8px;
     }
 
     .touch-btn {
-      min-width: 68px;
+      min-width: 48px;
       min-height: 44px;
-      padding: 8px 16px;
-      font-size: 14px;
+      padding: 8px 12px;
+      font-size: 13px;
       touch-action: manipulation;
     }
 
@@ -356,84 +365,7 @@
       color: var(--ink);
     }
 
-    .racer-fieldset {
-      margin: 0;
-      padding: 0;
-      border: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .racer-legend {
-      padding: 0;
-      margin-bottom: 8px;
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--ink);
-    }
-
-    .choice-card {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      padding: 12px;
-      border: 2px solid var(--border);
-      border-radius: var(--radius-md);
-      background-color: var(--surface);
-      cursor: pointer;
-      transition: border-color 150ms ease, background-color 150ms ease;
-    }
-
-    .choice-card:has(input:checked) {
-      border-color: var(--accent);
-      background-color: var(--accent-soft);
-    }
-
-    @media (hover: hover) {
-      .choice-card:hover {
-        border-color: #94a3b8;
-      }
-
-      .choice-card:has(input:checked):hover {
-        border-color: var(--accent);
-      }
-    }
-
-    .choice-card:has(input:focus-visible) {
-      outline: 2px solid var(--accent);
-      outline-offset: 2px;
-    }
-
-    .choice-radio {
-      width: 16px;
-      height: 16px;
-      margin: 4px 0 0;
-      accent-color: var(--accent);
-      flex-shrink: 0;
-    }
-
-    .choice-body {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      min-width: 0;
-    }
-
-    .choice-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--ink);
-      line-height: 1.3;
-    }
-
-    .choice-desc {
-      font-size: 12px;
-      color: var(--ink-muted);
-      line-height: 1.4;
-    }
-
-    .guide-list {
+    .info-box {
       margin: 0;
       padding: 12px 12px 12px 28px;
       background-color: var(--surface);
@@ -446,8 +378,38 @@
       color: var(--ink-muted);
     }
 
-    .guide-list strong {
+    .info-box strong {
       color: var(--ink);
+    }
+
+    .enemy-list {
+      margin: 0;
+      padding: 12px;
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      list-style: none;
+    }
+
+    .enemy-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .enemy-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .enemy-note {
+      font-size: 12px;
+      color: var(--ink-muted);
+      line-height: 1.45;
     }
 
     @media (max-width: 920px) {
@@ -474,14 +436,14 @@
         min-height: 240px;
       }
 
+      .touch-pad,
+      .touch-actions {
+        width: 100%;
+      }
+
       .touch-btn {
         flex: 1;
         min-width: 0;
-        padding: 8px 12px;
-      }
-
-      .touch-group {
-        width: 100%;
       }
     }
   </style>
@@ -490,8 +452,8 @@
   <div class="app">
     <header class="topbar">
       <div class="brand">
-        <h1 class="brand-title">SNOW DRIFT 3D — スプライトスタッキング・アーケード</h1>
-        <p class="brand-sub">ドリフトで溜めてブースト解放。60秒でスターを繋いで雪だるまを吹き飛ばす擬似3Dゲーム</p>
+        <h1 class="brand-title">EMERALD BLADE 3D — 草原スプライトスタッキング・アクション</h1>
+        <p class="brand-sub">2Dドット絵を16〜18層に重ねたSFC草原フィールド。剣斬り・360度回転斬り・魔法弾き返しでウェーブを制覇</p>
       </div>
       <div class="topbar-actions">
         <button type="button" class="btn" id="muteBtn" aria-pressed="false">効果音: オン</button>
@@ -499,24 +461,24 @@
       </div>
     </header>
 
-    <section class="hud-strip" aria-label="ゲームステータス">
+    <section class="hud-strip" aria-label="冒険ステータス">
       <div class="hud-cell">
-        <span class="hud-label">スコア</span>
-        <span class="hud-value" id="hudScore">0</span>
+        <span class="hud-label">ライフ</span>
+        <span class="hud-value is-heart" id="hudHearts">♥♥♥♥♥</span>
       </div>
       <div class="hud-cell">
-        <span class="hud-label">コンボ</span>
-        <span class="hud-value is-accent" id="hudCombo">x1</span>
+        <span class="hud-label">スコア / コンボ</span>
+        <span class="hud-value is-accent" id="hudScore">0 (x1)</span>
       </div>
       <div class="hud-cell">
-        <span class="hud-label">残り時間</span>
-        <span class="hud-value" id="hudTime">60.0s</span>
+        <span class="hud-label">ウェーブ / 残敵</span>
+        <span class="hud-value" id="hudWave">Wave 1 / 4</span>
       </div>
       <div class="hud-cell">
-        <span class="hud-label">ブースト溜め</span>
-        <span class="hud-value is-gold" id="hudBoostText">0%</span>
-        <div class="boost-track" aria-hidden="true">
-          <div class="boost-fill" id="hudBoostFill"></div>
+        <span class="hud-label">回転斬りチャージ</span>
+        <span class="hud-value is-gold" id="hudChargeText">0%</span>
+        <div class="charge-track" aria-hidden="true">
+          <div class="charge-fill" id="hudChargeFill"></div>
         </div>
       </div>
       <div class="hud-cell">
@@ -526,92 +488,93 @@
     </section>
 
     <main class="main-grid">
-      <section class="stage-wrap" aria-label="プレイ画面">
+      <section class="stage-wrap" aria-label="ゲーム画面">
         <div class="canvas-shell" id="canvasShell">
-          <canvas id="gameCanvas" aria-label="SNOW DRIFT 3D ゲームキャンバス"></canvas>
+          <canvas id="gameCanvas" aria-label="EMERALD BLADE 3D 草原アクションキャンバス"></canvas>
 
           <div class="stage-overlay" id="startOverlay">
             <div class="overlay-sheet">
-              <h2 class="overlay-title">SNOW DRIFT 3D</h2>
+              <h2 class="overlay-title">EMERALD BLADE 3D</h2>
               <p class="overlay-text">
-                2Dドット絵を16〜18層に重ねた擬似3D雪原フィールド。
-                <strong>Space長押しでドリフト溜め</strong> → 離すと<strong>無敵ターボ</strong>発動。
-                赤いメガスターは高得点＆時間+2秒です。
+                16〜18層の3D立体ドット絵で描かれた草原アクション。
+                <strong>Space / 左クリック短押しで剣斬り</strong>、<strong>長押し解放で360度回転斬り</strong>、
+                <strong>Shift / 右クリックで前転回避</strong>。草を刈るとハートやジェムが出現します。
               </p>
               <div class="overlay-actions">
-                <button type="button" class="btn btn-primary" id="startBtn">スタート (Enter)</button>
+                <button type="button" class="btn btn-primary" id="startBtn">冒険を始める (Enter)</button>
               </div>
             </div>
           </div>
 
           <div class="stage-overlay" id="resultOverlay" hidden>
             <div class="overlay-sheet">
-              <h2 class="overlay-title" id="resultTitle">フィニッシュ</h2>
-              <p class="overlay-text" id="resultRank">ランク評価</p>
+              <h2 class="overlay-title" id="resultTitle">力尽きた</h2>
+              <p class="overlay-text" id="resultRank">冒険の記録</p>
               <dl class="result-grid">
                 <div class="result-row">
                   <dt>最終スコア</dt>
                   <dd id="resScore">0</dd>
                 </div>
                 <div class="result-row">
-                  <dt>最大コンボ</dt>
-                  <dd id="resCombo">0</dd>
+                  <dt>到達ウェーブ</dt>
+                  <dd id="resWave">Wave 1</dd>
                 </div>
                 <div class="result-row">
-                  <dt>回収スター</dt>
-                  <dd id="resStars">0</dd>
+                  <dt>撃破した魔物</dt>
+                  <dd id="resKills">0 体</dd>
                 </div>
                 <div class="result-row">
-                  <dt>撃破雪だるま</dt>
-                  <dd id="resSmash">0</dd>
+                  <dt>回収ジェム</dt>
+                  <dd id="resGems">0 個</dd>
                 </div>
               </dl>
               <div class="overlay-actions">
-                <button type="button" class="btn btn-primary" id="retryBtn">もう一回遊ぶ (Enter / R)</button>
+                <button type="button" class="btn btn-primary" id="retryBtn">もう一回挑む (Enter / R)</button>
               </div>
             </div>
           </div>
         </div>
 
         <div class="touch-controls" aria-label="タッチ・クリック操作">
-          <div class="touch-group">
-            <button type="button" class="btn touch-btn" id="btnLeft" aria-label="左に曲がる">左 (A)</button>
-            <button type="button" class="btn touch-btn" id="btnRight" aria-label="右に曲がる">右 (D)</button>
+          <div class="touch-pad" role="group" aria-label="移動ボタン">
+            <button type="button" class="btn touch-btn" id="btnUp" aria-label="上へ移動">W</button>
+            <button type="button" class="btn touch-btn" id="btnLeft" aria-label="左へ移動">A</button>
+            <button type="button" class="btn touch-btn" id="btnDown" aria-label="下へ移動">S</button>
+            <button type="button" class="btn touch-btn" id="btnRight" aria-label="右へ移動">D</button>
           </div>
-          <div class="touch-group">
-            <button type="button" class="btn btn-primary touch-btn" id="btnDrift" aria-label="ドリフト溜めとブースト解放">ドリフト / ブースト (Space)</button>
+          <div class="touch-actions">
+            <button type="button" class="btn touch-btn" id="btnRoll" aria-label="前転ダッシュ回避">回避 (Shift)</button>
+            <button type="button" class="btn btn-primary touch-btn" id="btnAttack" aria-label="剣斬りと長押し回転斬り">剣 / 回転斬り (Space)</button>
           </div>
         </div>
       </section>
 
-      <aside class="side-col" aria-label="マシン選択と遊び方">
-        <fieldset class="racer-fieldset">
-          <legend class="racer-legend">操作キャラ選択（性能特化）</legend>
+      <aside class="side-col" aria-label="操作ガイドと魔物図鑑">
+        <section class="side-section" aria-labelledby="ctrlTitle">
+          <h2 class="side-heading" id="ctrlTitle">操作と立ち回り</h2>
+          <ul class="info-box">
+            <li><strong>WASD / 矢印キー</strong>：8方向移動（剣士が滑らかに360度立体回転）</li>
+            <li><strong>Space / J / 左クリック</strong>：素早い剣斬り。<strong>長押し→離す</strong>で全方位の<strong>回転斬り</strong></li>
+            <li><strong>Shift / K / 右クリック</strong>：無敵つきの前転ダッシュ回避</li>
+            <li><strong>草むらを刈る</strong>：回復ハートや緑・青・赤ジェムが出現。ウェーブ全滅で中央に<strong>宝箱</strong>が出現</li>
+          </ul>
+        </section>
 
-          <label class="choice-card">
-            <input type="radio" class="choice-radio" name="racer" value="car" checked>
-            <span class="choice-body">
-              <span class="choice-title">レトロスポーツカー</span>
-              <span class="choice-desc">最高速＆ターボ爆発力特化。大ドリフトで雪だるまを豪快に吹き飛ばす上級者向け。</span>
-            </span>
-          </label>
-
-          <label class="choice-card">
-            <input type="radio" class="choice-radio" name="racer" value="bunny">
-            <span class="choice-body">
-              <span class="choice-title">ピクセルうさぎ</span>
-              <span class="choice-desc">超小回り＆スター吸引範囲が広い。コンボを途切れさせにくい安定ハイスコア型。</span>
-            </span>
-          </label>
-        </fieldset>
-
-        <section class="side-section" aria-labelledby="howTitle">
-          <h2 class="side-heading" id="howTitle">操作とコツ（リスク＆リターン）</h2>
-          <ul class="guide-list">
-            <li><strong>自動前進 + A/D（または左右キー）</strong>でステアリング。迷わず即操作できます。</li>
-            <li><strong>Space長押しでドリフト溜め</strong>：曲がりながらチャージし、離すと無敵ターボ解放。</li>
-            <li><strong>無敵ターボ中に雪だるま体当たり</strong>：撃破ボーナス +250pt＆コンボ延長。</li>
-            <li><strong>赤いメガスター</strong>：モミの木の近くに出現。攻めて取ると +300pt ＆ 残り時間 +2秒。</li>
+        <section class="side-section" aria-labelledby="enemyTitle">
+          <h2 class="side-heading" id="enemyTitle">出現する3D魔物（リスクと攻略）</h2>
+          <ul class="enemy-list">
+            <li class="enemy-item">
+              <span class="enemy-name">ブルースライム（HP 2）</span>
+              <span class="enemy-note">ぷるぷる跳ねながら接近。剣斬りのコンボ起点にしやすい基本の魔物。</span>
+            </li>
+            <li class="enemy-item">
+              <span class="enemy-name">盾持ちゴブリン（HP 4）</span>
+              <span class="enemy-note">正面の鉄盾は通常斬りを弾く。突進を回避して側面を斬るか、回転斬りで突破。</span>
+            </li>
+            <li class="enemy-item">
+              <span class="enemy-name">レッドウィザード（HP 3）</span>
+              <span class="enemy-note">距離を取って魔法弾を放つ。<strong>魔法弾を剣で弾き返して当てると大ダメージ</strong>。</span>
+            </li>
           </ul>
         </section>
       </aside>
@@ -624,48 +587,28 @@
       // Tunable Game Parameters (Sakurai Principle: externalized tuning block)
       // =========================================================================
       const PARAMS = {
-        roundDuration: 60.0,
-        worldRadius: 430,
-        comboWindow: 3.4,
-        maxComboMult: 5,
-        starCollectRadiusScale: 1.35, // Generous pickup hitbox
-        treeHitRadiusScale: 0.72,     // Forgiving obstacle hitbox
-        racers: {
-          car: {
-            id: 'car',
-            name: 'レトロスポーツカー',
-            baseSpeed: 175,
-            turboSpeed: 330,
-            turnRate: 2.7,
-            driftTurnRate: 3.7,
-            driftSlowFactor: 0.76,
-            chargeRate: 0.95,
-            turboDuration: 1.35,
-            magnetRadius: 40,
-            scale: 2.8,
-            layerStep: 1.9
-          },
-          bunny: {
-            id: 'bunny',
-            name: 'ピクセルうさぎ',
-            baseSpeed: 158,
-            turboSpeed: 285,
-            turnRate: 3.5,
-            driftTurnRate: 4.5,
-            driftSlowFactor: 0.84,
-            chargeRate: 1.12,
-            turboDuration: 1.15,
-            magnetRadius: 68,
-            scale: 3.2,
-            layerStep: 1.85
-          }
-        }
+        arenaW: 880,
+        arenaH: 640,
+        maxHp: 5,
+        moveSpeed: 185,
+        chargeMoveSpeed: 108,
+        rollSpeed: 390,
+        rollDuration: 0.25,
+        rollCooldown: 0.62,
+        slashDuration: 0.17,
+        slashCooldown: 0.22,
+        slashReach: 56,
+        spinChargeTime: 0.52,
+        spinDuration: 0.34,
+        spinRadius: 76,
+        comboWindow: 4.0,
+        maxComboMult: 5
       };
 
       const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
       // =========================================================================
-      // Web Audio API Retro Synthesizer (Attack-focused, crisp SFX)
+      // Web Audio API Retro Action SFX (Crisp attack, controlled tail)
       // =========================================================================
       class SoundEngine {
         constructor() {
@@ -679,9 +622,7 @@
             if (!AC) return null;
             this.ctx = new AC();
           }
-          if (this.ctx.state === 'suspended') {
-            this.ctx.resume().catch(() => {});
-          }
+          if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
           return this.ctx;
         }
         tone(freq, dur, type = 'triangle', gainVal = 0.14, slideTo = null, delay = 0) {
@@ -692,70 +633,95 @@
           const g = ctx.createGain();
           osc.type = type;
           osc.frequency.setValueAtTime(freq, now);
-          if (slideTo) {
-            osc.frequency.exponentialRampToValueAtTime(Math.max(40, slideTo), now + dur);
-          }
+          if (slideTo) osc.frequency.exponentialRampToValueAtTime(Math.max(40, slideTo), now + dur);
           g.gain.setValueAtTime(0.001, now);
-          g.gain.linearRampToValueAtTime(gainVal, now + 0.008);
+          g.gain.linearRampToValueAtTime(gainVal, now + 0.006);
           g.gain.exponentialRampToValueAtTime(0.001, now + dur);
           osc.connect(g);
           g.connect(ctx.destination);
           osc.start(now);
           osc.stop(now + dur + 0.02);
         }
-        noise(dur, gainVal = 0.12, highpass = 400) {
+        noise(dur, gainVal = 0.12, highpass = 500) {
           const ctx = this.ensure();
           if (!ctx) return;
-          const bufferSize = Math.floor(ctx.sampleRate * dur);
-          const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-          const data = buffer.getChannelData(0);
-          for (let i = 0; i < bufferSize; i++) {
-            data[i] = Math.random() * 2 - 1;
-          }
+          const len = Math.floor(ctx.sampleRate * dur);
+          const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+          const data = buf.getChannelData(0);
+          for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
           const src = ctx.createBufferSource();
-          src.buffer = buffer;
-          const filter = ctx.createBiquadFilter();
-          filter.type = 'highpass';
-          filter.frequency.value = highpass;
+          src.buffer = buf;
+          const hp = ctx.createBiquadFilter();
+          hp.type = 'highpass';
+          hp.frequency.value = highpass;
           const g = ctx.createGain();
           const now = ctx.currentTime;
           g.gain.setValueAtTime(gainVal, now);
           g.gain.exponentialRampToValueAtTime(0.001, now + dur);
-          src.connect(filter);
-          filter.connect(g);
+          src.connect(hp);
+          hp.connect(g);
           g.connect(ctx.destination);
           src.start(now);
         }
-        playStar(combo) {
-          const scale = [523.25, 587.33, 659.25, 783.99, 880.0, 1046.5, 1174.66];
-          const base = scale[Math.min(combo, scale.length - 1)];
-          this.tone(base, 0.12, 'triangle', 0.15, base * 1.15);
-          this.tone(base * 1.5, 0.09, 'sine', 0.08, null, 0.03);
+        playSlash() {
+          this.noise(0.08, 0.11, 1400);
+          this.tone(420, 0.08, 'triangle', 0.10, 180);
         }
-        playMegaStar() {
-          this.tone(587.33, 0.12, 'square', 0.09);
-          this.tone(880.0, 0.14, 'square', 0.10, null, 0.05);
-          this.tone(1174.66, 0.24, 'triangle', 0.14, null, 0.10);
+        playSpinSlash() {
+          this.noise(0.24, 0.15, 900);
+          this.tone(320, 0.12, 'sawtooth', 0.11, 780);
+          this.tone(540, 0.18, 'triangle', 0.12, 1080, 0.06);
         }
         playChargeReady() {
-          this.tone(740, 0.08, 'sine', 0.10, 988);
+          this.tone(880, 0.09, 'sine', 0.11, 1320);
+          this.tone(1320, 0.12, 'triangle', 0.09, null, 0.05);
         }
-        playTurbo() {
-          this.noise(0.22, 0.15, 700);
-          this.tone(140, 0.22, 'sawtooth', 0.13, 420);
+        playRoll() {
+          this.noise(0.11, 0.09, 600);
+          this.tone(260, 0.10, 'sine', 0.09, 130);
         }
-        playSmash() {
-          this.noise(0.16, 0.16, 250);
-          this.tone(240, 0.14, 'square', 0.12, 620);
+        playGrassCut() {
+          this.noise(0.06, 0.09, 1900);
+          this.tone(300, 0.05, 'triangle', 0.06, 150);
         }
-        playBump() {
-          this.noise(0.14, 0.14, 150);
-          this.tone(160, 0.18, 'sawtooth', 0.14, 55);
+        playHit(isHeavy) {
+          this.noise(isHeavy ? 0.14 : 0.09, isHeavy ? 0.16 : 0.12, 320);
+          this.tone(isHeavy ? 210 : 280, isHeavy ? 0.14 : 0.09, 'square', 0.11, 90);
         }
-        playFinish(isBest) {
-          const notes = isBest ? [523, 659, 784, 1046, 1318] : [523, 659, 784, 1046];
-          notes.forEach((n, i) => {
-            this.tone(n, 0.18, 'triangle', 0.13, null, i * 0.08);
+        playShieldClang() {
+          this.tone(1120, 0.09, 'square', 0.11, 760);
+          this.tone(1680, 0.10, 'triangle', 0.09, 980, 0.02);
+        }
+        playParry() {
+          this.tone(784, 0.09, 'square', 0.11, 1568);
+          this.tone(1174, 0.14, 'triangle', 0.13, 1760, 0.04);
+        }
+        playKill() {
+          this.noise(0.15, 0.13, 450);
+          this.tone(360, 0.10, 'square', 0.10, 720);
+          this.tone(540, 0.12, 'triangle', 0.11, 980, 0.05);
+        }
+        playGem(tier) {
+          const base = tier === 2 ? 988 : (tier === 1 ? 784 : 659);
+          this.tone(base, 0.10, 'triangle', 0.13, base * 1.25);
+        }
+        playHeart() {
+          this.tone(523, 0.09, 'sine', 0.12);
+          this.tone(659, 0.09, 'sine', 0.12, null, 0.06);
+          this.tone(784, 0.14, 'sine', 0.13, null, 0.12);
+        }
+        playChest() {
+          [523, 587, 659, 784, 1046].forEach((n, i) => {
+            this.tone(n, 0.16, 'triangle', 0.13, null, i * 0.075);
+          });
+        }
+        playHurt() {
+          this.noise(0.16, 0.16, 180);
+          this.tone(170, 0.18, 'sawtooth', 0.15, 65);
+        }
+        playGameOver() {
+          [440, 392, 349, 261].forEach((n, i) => {
+            this.tone(n, 0.22, 'triangle', 0.13, null, i * 0.12);
           });
         }
       }
@@ -763,259 +729,376 @@
       const sfx = new SoundEngine();
 
       // =========================================================================
-      // Offscreen Pixel-Art Slice Builder & Models (Sprite Stacking)
+      // Offscreen Pixel-Art Slice Builder & 3D Stacked Models
       // =========================================================================
-      function createSliceCanvas(size, drawFn) {
-        const canvas = document.createElement('canvas');
-        canvas.width = size;
-        canvas.height = size;
-        const ctx = canvas.getContext('2d');
-        ctx.imageSmoothingEnabled = false;
+      function createSlice(size, drawFn) {
+        const c = document.createElement('canvas');
+        c.width = size;
+        c.height = size;
+        const g = c.getContext('2d');
+        g.imageSmoothingEnabled = false;
         const api = {
-          px(x, y, color) {
+          px(x, y, col) {
             const ix = Math.round(x);
             const iy = Math.round(y);
             if (ix < 0 || ix >= size || iy < 0 || iy >= size) return;
-            ctx.fillStyle = color;
-            ctx.fillRect(ix, iy, 1, 1);
+            g.fillStyle = col;
+            g.fillRect(ix, iy, 1, 1);
           },
-          rect(x, y, w, h, color) {
-            ctx.fillStyle = color;
+          rect(x, y, w, h, col) {
             const x0 = Math.max(0, Math.round(x));
             const y0 = Math.max(0, Math.round(y));
             const x1 = Math.min(size, Math.round(x + w));
             const y1 = Math.min(size, Math.round(y + h));
             if (x1 <= x0 || y1 <= y0) return;
-            ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+            g.fillStyle = col;
+            g.fillRect(x0, y0, x1 - x0, y1 - y0);
           },
-          ellipse(cx, cy, rx, ry, color) {
-            ctx.fillStyle = color;
+          ellipse(cx, cy, rx, ry, col) {
+            g.fillStyle = col;
             for (let y = 0; y < size; y++) {
               for (let x = 0; x < size; x++) {
                 const dx = (x + 0.5 - cx) / rx;
                 const dy = (y + 0.5 - cy) / ry;
-                if (dx * dx + dy * dy <= 1.0) ctx.fillRect(x, y, 1, 1);
+                if (dx * dx + dy * dy <= 1.0) g.fillRect(x, y, 1, 1);
               }
             }
           }
         };
         drawFn(api);
-        return canvas;
+        return c;
       }
 
-      function buildCarSprite() {
-        const size = 20;
-        const layers = [];
-        for (let z = 0; z < 16; z++) {
-          layers.push(createSliceCanvas(size, (g) => {
-            if (z <= 3) {
-              g.rect(3, 4, 2, 4, '#1e293b');
-              g.rect(15, 4, 2, 4, '#1e293b');
-              g.rect(3, 12, 2, 4, '#1e293b');
-              g.rect(15, 12, 2, 4, '#1e293b');
-              if (z === 1 || z === 2) {
-                g.rect(3, 5, 1, 2, '#94a3b8');
-                g.rect(16, 5, 1, 2, '#94a3b8');
-                g.rect(3, 13, 1, 2, '#94a3b8');
-                g.rect(16, 13, 1, 2, '#94a3b8');
-              }
-              if (z >= 1) g.rect(5, 3, 10, 14, '#334155');
-            }
-            if (z >= 3 && z <= 6) {
-              const col = z === 3 ? '#991b1b' : (z === 6 ? '#ef4444' : '#dc2626');
-              g.rect(4, 2, 12, 16, col);
-              if (z === 3 || z === 4) {
-                g.rect(5, 1, 10, 1, '#cbd5e1');
-                g.rect(5, 18, 10, 1, '#cbd5e1');
-              }
-              g.rect(9, 2, 2, 16, '#f8fafc');
-              if (z === 5 || z === 6) {
-                g.rect(5, 2, 2, 1, '#fef08a');
-                g.rect(13, 2, 2, 1, '#fef08a');
-                g.rect(5, 17, 2, 1, '#fb923c');
-                g.rect(13, 17, 2, 1, '#fb923c');
-              }
-            }
-            if (z >= 7 && z <= 9) {
-              g.rect(5, 3, 10, 14, z === 7 ? '#dc2626' : '#ef4444');
-              g.rect(9, 3, 2, 14, '#f8fafc');
-              if (z === 8) {
-                g.rect(3, 7, 2, 1, '#991b1b');
-                g.rect(15, 7, 2, 1, '#991b1b');
-              }
-              if (z >= 8) g.rect(4, 16, 12, 2, z === 9 ? '#ef4444' : '#991b1b');
-            }
-            if (z >= 10 && z <= 13) {
-              const inset = z >= 12 ? 1 : 0;
-              const yF = 6 + inset;
-              const yB = 14 - inset;
-              g.rect(6, yF, 8, yB - yF, z === 10 ? '#0284c7' : '#38bdf8');
-              g.px(6, yF, '#991b1b'); g.px(13, yF, '#991b1b');
-              g.px(6, yB - 1, '#991b1b'); g.px(13, yB - 1, '#991b1b');
-              if (z === 11) g.rect(7, yF, 2, 1, '#e0f2fe');
-            }
-            if (z >= 14) {
-              const pad = z === 15 ? 1 : 0;
-              g.rect(6 + pad, 8, 8 - pad * 2, 5, z === 14 ? '#dc2626' : '#ef4444');
-              g.rect(9, 8, 2, 5, '#f8fafc');
-            }
-          }));
-        }
-        return { size, layers };
-      }
-
-      function buildBunnySprite() {
+      // Hero: Green-tunic Swordsman (16x16, 18 layers; faces -Y)
+      function buildHeroSprite() {
         const size = 16;
         const layers = [];
         for (let z = 0; z < 18; z++) {
-          layers.push(createSliceCanvas(size, (g) => {
+          layers.push(createSlice(size, (g) => {
+            // Boots (0-2)
             if (z <= 2) {
-              g.rect(4, 5, 3, 5, z === 0 ? '#cbd5e1' : '#ffffff');
-              g.rect(9, 5, 3, 5, z === 0 ? '#cbd5e1' : '#ffffff');
+              g.rect(4, 6, 3, 4, z === 0 ? '#5c3a21' : '#7c4d2b');
+              g.rect(9, 6, 3, 4, z === 0 ? '#5c3a21' : '#7c4d2b');
             }
-            if (z >= 2 && z <= 7) {
-              const rx = (z === 2 || z === 7) ? 3.8 : 4.6;
-              const ry = (z === 2 || z === 7) ? 4.0 : 4.8;
-              g.ellipse(8, 8.5, rx, ry, z <= 3 ? '#e2e8f0' : '#ffffff');
-              if (z >= 4 && z <= 5) {
-                g.rect(3, 6, 2, 2, '#e2e8f0');
-                g.rect(11, 6, 2, 2, '#e2e8f0');
+            // Tunic & belt (3-8)
+            if (z >= 3 && z <= 8) {
+              const col = z === 3 ? '#14532d' : (z >= 7 ? '#22c55e' : '#16a34a');
+              g.ellipse(8, 8, 4.1, 3.6, col);
+              if (z === 5) {
+                g.rect(4, 6, 8, 4, '#78350f');
+                g.rect(7, 5, 2, 1, '#facc15');
+              }
+              // Back shield (+Y is back)
+              if (z >= 4 && z <= 8) {
+                g.rect(6, 11, 4, 2, '#1d4ed8');
+                g.rect(7, 11, 2, 2, '#facc15');
+                g.px(6, 12, '#cbd5e1');
+                g.px(9, 12, '#cbd5e1');
+              }
+              // Arms & held sword on right side (+X)
+              if (z >= 6 && z <= 8) {
+                g.rect(3, 6, 2, 3, '#15803d');
+                g.rect(11, 5, 2, 3, '#15803d');
+              }
+              if (z === 7) {
+                g.rect(12, 4, 2, 1, '#facc15');
+                g.rect(12, 0, 1, 4, '#e2e8f0');
+                g.px(12, 1, '#ffffff');
               }
             }
-            if (z >= 3 && z <= 5) g.rect(7, 13, 2, 2, '#ffffff');
-            if (z >= 8 && z <= 12) {
-              const r = (z === 8 || z === 12) ? 3.5 : 4.3;
-              g.ellipse(8, 7.5, r, r, z === 8 ? '#e2e8f0' : '#ffffff');
-              if (z === 9) {
-                g.px(5, 4, '#fbcfe8'); g.px(10, 4, '#fbcfe8');
-                g.rect(7, 3, 2, 1, '#f472b6');
+            // Head & golden hair (9-12)
+            if (z >= 9 && z <= 12) {
+              const r = (z === 9 || z === 12) ? 3.2 : 3.8;
+              g.ellipse(8, 7.5, r, r, '#fde68a');
+              if (z >= 9 && z <= 11) {
+                g.rect(5, 4, 6, 3, '#fed7aa');
               }
-              if (z === 10 || z === 11) {
-                g.px(6, 3, '#0f172a'); g.px(9, 3, '#0f172a');
+              if (z === 10) {
+                g.px(6, 4, '#0f172a');
+                g.px(9, 4, '#0f172a');
+              }
+              if (z === 11 || z === 12) {
+                g.rect(5, 8, 6, 3, '#f59e0b');
               }
             }
-            if (z >= 13) {
-              const w = z === 17 ? 1 : 2;
-              const h = z >= 16 ? 2 : 3;
-              g.rect(5, 7, w, h, '#ffffff');
-              g.rect(11 - w, 7, w, h, '#ffffff');
-              if (z <= 16) { g.px(5, 7, '#f472b6'); g.px(10, 7, '#f472b6'); }
+            // Iconic pointed green cap trailing toward +Y (13-17)
+            if (z >= 13 && z <= 17) {
+              const backShift = (z - 13) * 0.9;
+              const r = Math.max(1.2, 3.6 - (z - 13) * 0.6);
+              g.ellipse(8, 8 + backShift, r, r * 1.15, z === 13 ? '#15803d' : '#22c55e');
+              if (z === 13) {
+                g.rect(5, 5, 6, 1, '#facc15');
+              }
             }
           }));
         }
         return { size, layers };
       }
 
-      function buildPineSprite() {
+      // Enemy 1: Blue Slime (14x14, 12 layers)
+      function buildSlimeSprite() {
+        const size = 14;
+        const layers = [];
+        for (let z = 0; z < 12; z++) {
+          layers.push(createSlice(size, (g) => {
+            const p = z / 11;
+            const r = Math.max(1.4, 5.4 * Math.sin(Math.acos(Math.min(0.95, p * 0.95))));
+            const col = z <= 2 ? '#1d4ed8' : (z >= 8 ? '#7dd3fc' : '#2563eb');
+            g.ellipse(7, 7, r, r, col);
+            if (z >= 4 && z <= 7) {
+              g.px(5, 3, '#ffffff');
+              g.px(8, 3, '#ffffff');
+              if (z === 5 || z === 6) {
+                g.px(5, 2, '#0f172a');
+                g.px(8, 2, '#0f172a');
+              }
+            }
+            if (z === 9) g.rect(5, 5, 2, 2, '#e0f2fe');
+          }));
+        }
+        return { size, layers };
+      }
+
+      // Enemy 2: Shield Goblin (16x16, 16 layers; iron shield at front -Y)
+      function buildGoblinSprite() {
+        const size = 16;
+        const layers = [];
+        for (let z = 0; z < 16; z++) {
+          layers.push(createSlice(size, (g) => {
+            if (z <= 2) {
+              g.rect(4, 7, 3, 4, '#3f3f46');
+              g.rect(9, 7, 3, 4, '#3f3f46');
+            }
+            if (z >= 3 && z <= 9) {
+              g.ellipse(8, 8.5, 4.2, 3.8, z <= 4 ? '#7f1d1d' : '#b91c1c');
+              // Large iron front shield (-Y)
+              g.rect(4, 2, 8, 2, z % 2 === 0 ? '#64748b' : '#94a3b8');
+              g.rect(7, 2, 2, 2, '#facc15');
+            }
+            if (z >= 10 && z <= 13) {
+              g.ellipse(8, 8, 3.6, 3.4, '#65a30d');
+              if (z === 11) {
+                g.px(6, 5, '#fef08a');
+                g.px(9, 5, '#fef08a');
+              }
+              // Pointed goblin ears
+              if (z === 11 || z === 12) {
+                g.rect(3, 7, 2, 2, '#4d7c0f');
+                g.rect(11, 7, 2, 2, '#4d7c0f');
+              }
+            }
+            if (z >= 14) {
+              g.ellipse(8, 8, 3.2 - (z - 14), 3.2 - (z - 14), '#475569');
+              g.px(8, 6, '#ef4444');
+            }
+          }));
+        }
+        return { size, layers };
+      }
+
+      // Enemy 3: Red Wizard (16x16, 16 layers)
+      function buildWizardSprite() {
+        const size = 16;
+        const layers = [];
+        for (let z = 0; z < 16; z++) {
+          layers.push(createSlice(size, (g) => {
+            if (z <= 8) {
+              const r = 4.6 - z * 0.22;
+              g.ellipse(8, 8, r, r, z % 3 === 0 ? '#991b1b' : '#dc2626');
+              if (z === 1 || z === 2) g.rect(5, 4, 6, 1, '#facc15');
+              // Staff on right
+              if (z >= 3 && z <= 10) g.rect(12, 5, 1, 2, '#78350f');
+            }
+            if (z >= 9 && z <= 11) {
+              g.ellipse(8, 8, 3.0, 3.0, '#1e1b4b');
+              if (z === 10) {
+                g.px(6, 5, '#facc15');
+                g.px(9, 5, '#facc15');
+              }
+              if (z === 11) g.rect(11, 4, 3, 3, '#38bdf8');
+            }
+            if (z === 12) {
+              g.ellipse(8, 8, 4.8, 4.8, '#b91c1c');
+              g.ellipse(8, 8, 3.4, 3.4, '#facc15');
+            }
+            if (z >= 13) {
+              const r = Math.max(1.0, 3.2 - (z - 13) * 0.85);
+              g.ellipse(8, 8 + (z - 13) * 0.6, r, r, '#dc2626');
+            }
+          }));
+        }
+        return { size, layers };
+      }
+
+      // Prop: Lush Broadleaf Tree (18x18, 18 layers)
+      function buildTreeSprite() {
+        const size = 18;
+        const layers = [];
+        for (let z = 0; z < 18; z++) {
+          layers.push(createSlice(size, (g) => {
+            if (z <= 5) {
+              g.ellipse(9, 9, z === 0 ? 3.2 : 2.3, z === 0 ? 3.2 : 2.3, z <= 1 ? '#5c3a21' : '#784824');
+            }
+            if (z >= 5 && z <= 17) {
+              const p = (z - 5) / 12;
+              const r = Math.max(1.8, Math.sin(p * Math.PI * 0.85 + 0.35) * 7.2);
+              const col = z <= 8 ? '#14532d' : (z <= 13 ? '#16a34a' : (z <= 15 ? '#4ade80' : '#86efac'));
+              g.ellipse(9, 9, r, r, col);
+              if (z >= 9 && z <= 14) {
+                g.ellipse(7, 7, r * 0.5, r * 0.5, '#4ade80');
+              }
+            }
+          }));
+        }
+        return { size, layers };
+      }
+
+      // Prop: Ancient Mossy Stone Pillar (14x14, 16 layers)
+      function buildPillarSprite() {
         const size = 14;
         const layers = [];
         for (let z = 0; z < 16; z++) {
-          layers.push(createSliceCanvas(size, (g) => {
-            if (z <= 3) g.rect(6, 6, 2, 2, '#6b4423');
-            if (z >= 3 && z <= 14) {
-              const tier = (z - 3) % 3;
-              const p = (z - 3) / 11;
-              const r = Math.max(1.0, (5.2 - p * 3.8) - tier * 0.5);
-              const col = tier === 0 ? '#14532d' : (tier === 1 ? '#15803d' : '#f1f5f9');
-              g.ellipse(7, 7, r, r, col);
+          layers.push(createSlice(size, (g) => {
+            if (z <= 2 || z >= 14) {
+              g.rect(2, 2, 10, 10, z === 0 ? '#64748b' : '#94a3b8');
+              g.rect(3, 3, 8, 8, '#cbd5e1');
+            } else {
+              g.rect(3, 3, 8, 8, z % 2 === 0 ? '#94a3b8' : '#cbd5e1');
+              g.rect(4, 4, 6, 6, '#e2e8f0');
+              if (z >= 3 && z <= 6) {
+                g.rect(3, 8, 3, 3, '#22c55e');
+              }
             }
-            if (z === 15) g.rect(6, 6, 2, 2, '#ffffff');
           }));
         }
         return { size, layers };
       }
 
-      function buildSnowmanSprite() {
+      // Prop: Cuttable 3D Grass Bush (12x12, 9 layers)
+      function buildBushSprite() {
         const size = 12;
         const layers = [];
-        for (let z = 0; z < 14; z++) {
-          layers.push(createSliceCanvas(size, (g) => {
-            if (z <= 4) {
-              const r = (z === 0 || z === 4) ? 2.6 : 3.4;
-              g.ellipse(6, 6, r, r, z === 0 ? '#cbd5e1' : '#ffffff');
-            } else if (z === 5) {
-              g.ellipse(6, 6, 2.4, 2.4, '#dc2626');
-            } else if (z >= 6 && z <= 9) {
-              const r = z === 9 ? 1.8 : 2.4;
-              g.ellipse(6, 6, r, r, '#ffffff');
-              if (z === 7) {
-                g.px(5, 3, '#f97316'); g.px(4, 4, '#0f172a'); g.px(7, 4, '#0f172a');
-              }
-            } else if (z === 10) {
-              g.ellipse(6, 6, 2.6, 2.6, '#1e293b');
-            } else {
-              g.rect(4, 4, 4, 4, '#1e293b');
+        for (let z = 0; z < 9; z++) {
+          layers.push(createSlice(size, (g) => {
+            const p = z / 8;
+            const r = Math.max(1.5, Math.sin(p * Math.PI * 0.8 + 0.4) * 4.6);
+            const col = z <= 2 ? '#14532d' : (z <= 5 ? '#16a34a' : '#4ade80');
+            g.ellipse(6, 6, r, r, col);
+            if (z === 6 || z === 7) {
+              g.px(4, 5, '#bbf7d0');
+              g.px(7, 4, '#bbf7d0');
             }
           }));
         }
         return { size, layers };
       }
 
-      function buildStarSprite(isMega) {
+      // Prop: Treasure Chest (16x16, 13 layers)
+      function buildChestSprite() {
+        const size = 16;
+        const layers = [];
+        for (let z = 0; z < 13; z++) {
+          layers.push(createSlice(size, (g) => {
+            if (z <= 7) {
+              g.rect(2, 4, 12, 8, z === 0 ? '#78350f' : '#92400e');
+              g.rect(2, 4, 12, 1, '#facc15');
+              g.rect(2, 11, 12, 1, '#facc15');
+              g.rect(2, 4, 1, 8, '#facc15');
+              g.rect(13, 4, 1, 8, '#facc15');
+              if (z >= 4 && z <= 6) g.rect(7, 3, 2, 2, '#fef08a');
+            } else {
+              const inset = Math.floor((z - 8) * 0.6);
+              g.rect(2, 4 + inset, 12, 8 - inset * 2, z >= 11 ? '#d97706' : '#b45309');
+              g.rect(7, 4 + inset, 2, 8 - inset * 2, '#facc15');
+            }
+          }));
+        }
+        return { size, layers };
+      }
+
+      // Pickup: Gem (8x8, 7 layers)
+      function buildGemSprite(core, mid, dark) {
+        const size = 8;
+        const layers = [];
+        for (let z = 0; z < 7; z++) {
+          layers.push(createSlice(size, (g) => {
+            const d = Math.abs(z - 3);
+            if (d <= 1) {
+              g.rect(2, 1, 4, 6, mid);
+              g.rect(3, 2, 2, 4, core);
+            } else if (d === 2) {
+              g.rect(3, 2, 2, 4, mid);
+            } else {
+              g.rect(3, 3, 2, 2, dark);
+            }
+          }));
+        }
+        return { size, layers };
+      }
+
+      // Pickup: Heart (10x10, 6 layers)
+      function buildHeartSprite() {
         const size = 10;
         const layers = [];
-        const cCore = isMega ? '#fecaca' : '#fef08a';
-        const cMid = isMega ? '#ef4444' : '#facc15';
-        const cEdge = isMega ? '#991b1b' : '#ca8a04';
-        for (let z = 0; z < 8; z++) {
-          layers.push(createSliceCanvas(size, (g) => {
-            const d = Math.abs(z - 3.5);
-            const col = d < 1.2 ? cCore : cMid;
-            if (d <= 1.6) {
-              g.rect(4, 1, 2, 8, col);
-              g.rect(1, 4, 8, 2, col);
-              g.rect(3, 3, 4, 4, cCore);
-            } else if (d <= 2.6) {
-              g.rect(4, 2, 2, 6, cMid);
-              g.rect(2, 4, 6, 2, cMid);
-            } else {
-              g.rect(4, 4, 2, 2, cEdge);
-            }
+        for (let z = 0; z < 6; z++) {
+          layers.push(createSlice(size, (g) => {
+            const col = z >= 4 ? '#fca5a5' : (z <= 1 ? '#b91c1c' : '#ef4444');
+            g.rect(2, 2, 2, 3, col);
+            g.rect(6, 2, 2, 3, col);
+            g.rect(2, 4, 6, 2, col);
+            g.rect(3, 6, 4, 1, col);
+            g.rect(4, 7, 2, 1, col);
           }));
         }
         return { size, layers };
       }
 
       const SPRITES = {
-        car: buildCarSprite(),
-        bunny: buildBunnySprite(),
-        pine: buildPineSprite(),
-        snowman: buildSnowmanSprite(),
-        star: buildStarSprite(false),
-        megaStar: buildStarSprite(true)
+        hero: buildHeroSprite(),
+        slime: buildSlimeSprite(),
+        goblin: buildGoblinSprite(),
+        wizard: buildWizardSprite(),
+        tree: buildTreeSprite(),
+        pillar: buildPillarSprite(),
+        bush: buildBushSprite(),
+        chest: buildChestSprite(),
+        gem0: buildGemSprite('#bbf7d0', '#22c55e', '#15803d'),
+        gem1: buildGemSprite('#bae6fd', '#3b82f6', '#1d4ed8'),
+        gem2: buildGemSprite('#fecaca', '#ef4444', '#b91c1c'),
+        heart: buildHeartSprite()
       };
 
       // =========================================================================
-      // Game State & World Setup
+      // Game State & World
       // =========================================================================
       const canvas = document.getElementById('gameCanvas');
       const ctx = canvas.getContext('2d');
+      const hudHearts = document.getElementById('hudHearts');
       const hudScore = document.getElementById('hudScore');
-      const hudCombo = document.getElementById('hudCombo');
-      const hudTime = document.getElementById('hudTime');
-      const hudBoostText = document.getElementById('hudBoostText');
-      const hudBoostFill = document.getElementById('hudBoostFill');
+      const hudWave = document.getElementById('hudWave');
+      const hudChargeText = document.getElementById('hudChargeText');
+      const hudChargeFill = document.getElementById('hudChargeFill');
       const hudBest = document.getElementById('hudBest');
       const startOverlay = document.getElementById('startOverlay');
       const resultOverlay = document.getElementById('resultOverlay');
 
-      const BEST_KEY = 'snow_drift_3d_best_v1';
+      const BEST_KEY = 'emerald_blade_3d_best_v1';
       let bestScore = Number(localStorage.getItem(BEST_KEY) || 0);
       hudBest.textContent = bestScore.toLocaleString();
 
-      const input = { left: false, right: false, drift: false };
-
+      const input = { up: false, down: false, left: false, right: false, attack: false, roll: false };
+      let prevAttackHeld = false;
+      let prevRollHeld = false;
       let mode = 'title'; // 'title' | 'playing' | 'result'
-      let selectedRacer = 'car';
 
       const state = {
+        time: 0,
         score: 0,
+        wave: 1,
+        kills: 0,
+        gems: 0,
         combo: 0,
-        maxCombo: 0,
         comboTimer: 0,
-        starsCollected: 0,
-        smashedCount: 0,
-        timeLeft: PARAMS.roundDuration,
         hitstop: 0,
         shakeTime: 0,
         shakeMag: 0,
@@ -1023,146 +1106,154 @@
         flashColor: '#ffffff',
         camX: 0,
         camY: 0,
-        worldTime: 0,
-        player: {
-          x: 0,
-          y: 80,
-          angle: -Math.PI / 2,
-          visualSlip: 0,
-          speed: 140,
-          driftCharge: 0,
-          chargeNotified: false,
-          turboTimer: 0,
-          invulnTimer: 0,
-          bounceZ: 0
-        },
-        trees: [],
-        snowmen: [],
-        stars: [],
+        player: null,
+        obstacles: [],
+        bushes: [],
+        flowers: [],
+        enemies: [],
+        projectiles: [],
+        pickups: [],
+        chest: null,
+        slashes: [],
+        afterimages: [],
         particles: [],
-        skidMarks: [],
-        popups: [],
-        snowflakes: []
+        popups: []
       };
 
-      function initSnowflakes() {
-        state.snowflakes = [];
-        for (let i = 0; i < 42; i++) {
-          state.snowflakes.push({
-            x: Math.random(),
-            y: Math.random(),
-            r: 1.5 + Math.random() * 2,
-            vy: 0.08 + Math.random() * 0.14,
-            vx: -0.02 + Math.random() * 0.04
+      function buildFieldProps() {
+        state.obstacles = [];
+        state.bushes = [];
+        state.flowers = [];
+
+        const hw = PARAMS.arenaW / 2;
+        const hh = PARAMS.arenaH / 2;
+
+        // Border broadleaf trees framing the meadow
+        const treeCoords = [
+          [-hw + 55, -hh + 55], [-190, -hh + 45], [190, -hh + 45], [hw - 55, -hh + 55],
+          [-hw + 48, -95], [hw - 48, -95], [-hw + 48, 115], [hw - 48, 115],
+          [-hw + 55, hh - 55], [-190, hh - 45], [190, hh - 45], [hw - 55, hh - 55]
+        ];
+        treeCoords.forEach(([x, y]) => state.obstacles.push({ type: 'tree', x, y, r: 24 }));
+
+        // 4 Ancient stone pillars around the central plaza
+        const pillarCoords = [[-165, -120], [165, -120], [-165, 120], [165, 120]];
+        pillarCoords.forEach(([x, y]) => state.obstacles.push({ type: 'pillar', x, y, r: 18 }));
+
+        // Cuttable 3D bushes clustered naturally
+        const bushClusters = [
+          [-270, -170], [-240, -170], [-255, -145],
+          [245, -175], [275, -175], [260, -150],
+          [-265, 155], [-235, 155], [-250, 180],
+          [240, 160], [270, 160], [255, 185],
+          [-80, -210], [80, -210], [-80, 210], [80, 210]
+        ];
+        bushClusters.forEach(([x, y]) => state.bushes.push({ x, y, alive: true, regrow: 0 }));
+
+        // Decorative wildflowers
+        for (let i = 0; i < 40; i++) {
+          state.flowers.push({
+            x: (Math.random() - 0.5) * (PARAMS.arenaW - 120),
+            y: (Math.random() - 0.5) * (PARAMS.arenaH - 120),
+            col: i % 3 === 0 ? '#fef08a' : (i % 3 === 1 ? '#ffffff' : '#93c5fd')
           });
         }
       }
-      initSnowflakes();
 
-      function populateArena() {
-        state.trees = [];
-        state.snowmen = [];
-        state.stars = [];
-        state.particles = [];
-        state.skidMarks = [];
-        state.popups = [];
+      function spawnWave(waveNum) {
+        state.enemies = [];
+        state.projectiles = [];
+        state.chest = null;
 
-        // Ring of decorative & obstacle pine trees
-        const treeCoords = [
-          [-210, -190], [0, -240], [220, -180],
-          [-260, 20], [260, 10],
-          [-190, 210], [20, 250], [210, 200],
-          [-105, -75], [115, -65], [-95, 95], [125, 105]
-        ];
-        treeCoords.forEach(([x, y]) => {
-          state.trees.push({ x, y, r: 22 });
-        });
-
-        // Smashable snowmen
-        for (let i = 0; i < 7; i++) {
-          spawnSnowman();
+        // Regrow half the bushes between waves
+        for (const b of state.bushes) {
+          if (!b.alive) { b.alive = true; b.regrow = 0; }
         }
 
-        // Collectible stars (8 normal + 2 high-risk mega stars)
-        for (let i = 0; i < 8; i++) spawnStar(false);
-        for (let i = 0; i < 2; i++) spawnStar(true);
-      }
+        const slimeCount = 2 + Math.min(5, waveNum);
+        const goblinCount = waveNum >= 1 ? Math.min(4, Math.floor((waveNum + 1) / 2)) : 0;
+        const wizCount = waveNum >= 2 ? Math.min(3, Math.floor(waveNum / 2)) : 0;
 
-      function isSpotClear(x, y, minDist) {
-        if (Math.hypot(x - state.player.x, y - state.player.y) < 75) return false;
-        for (const t of state.trees) {
-          if (Math.hypot(x - t.x, y - t.y) < minDist) return false;
-        }
-        return true;
-      }
+        const roster = [];
+        for (let i = 0; i < slimeCount; i++) roster.push('slime');
+        for (let i = 0; i < goblinCount; i++) roster.push('goblin');
+        for (let i = 0; i < wizCount; i++) roster.push('wizard');
 
-      function spawnSnowman() {
-        for (let attempt = 0; attempt < 30; attempt++) {
-          const ang = Math.random() * Math.PI * 2;
-          const dist = 90 + Math.random() * (PARAMS.worldRadius - 140);
-          const x = Math.cos(ang) * dist;
-          const y = Math.sin(ang) * dist;
-          if (isSpotClear(x, y, 52)) {
-            state.snowmen.push({ x, y, r: 17, angle: Math.random() * Math.PI * 2, respawn: 0 });
-            return;
-          }
-        }
-      }
-
-      function spawnStar(isMega) {
-        if (isMega && state.trees.length > 0) {
-          // Risk-reward placement: right next to a pine tree
-          for (let attempt = 0; attempt < 25; attempt++) {
-            const tree = state.trees[Math.floor(Math.random() * state.trees.length)];
+        for (const kind of roster) {
+          let sx = 0;
+          let sy = 0;
+          for (let attempt = 0; attempt < 30; attempt++) {
             const ang = Math.random() * Math.PI * 2;
-            const x = tree.x + Math.cos(ang) * 44;
-            const y = tree.y + Math.sin(ang) * 44;
-            if (Math.hypot(x, y) < PARAMS.worldRadius - 40 && Math.hypot(x - state.player.x, y - state.player.y) > 90) {
-              state.stars.push({ x, y, isMega: true, phase: Math.random() * 6.28 });
-              return;
-            }
+            const dist = 175 + Math.random() * 170;
+            sx = Math.max(-PARAMS.arenaW / 2 + 85, Math.min(PARAMS.arenaW / 2 - 85, Math.cos(ang) * dist));
+            sy = Math.max(-PARAMS.arenaH / 2 + 85, Math.min(PARAMS.arenaH / 2 - 85, Math.sin(ang) * dist));
+            if (Math.hypot(sx - state.player.x, sy - state.player.y) > 140) break;
           }
+          const hp = kind === 'goblin' ? 4 : (kind === 'wizard' ? 3 : 2);
+          state.enemies.push({
+            kind,
+            x: sx,
+            y: sy,
+            vx: 0,
+            vy: 0,
+            angle: 0,
+            hp,
+            maxHp: hp,
+            r: kind === 'goblin' ? 18 : 15,
+            aiTimer: 0.7 + Math.random() * 0.9,
+            aiState: 'idle',
+            chargeDirX: 0,
+            chargeDirY: 0,
+            hurtTimer: 0,
+            hopPhase: Math.random() * 6.28
+          });
         }
-        for (let attempt = 0; attempt < 30; attempt++) {
-          const ang = Math.random() * Math.PI * 2;
-          const dist = 70 + Math.random() * (PARAMS.worldRadius - 110);
-          const x = Math.cos(ang) * dist;
-          const y = Math.sin(ang) * dist;
-          if (isSpotClear(x, y, 42)) {
-            state.stars.push({ x, y, isMega: false, phase: Math.random() * 6.28 });
-            return;
-          }
-        }
+        addPopup(state.player.x, state.player.y - 34, `WAVE ${waveNum}`, '#146c43');
       }
 
-      function resetRound(startNow) {
-        const spec = PARAMS.racers[selectedRacer];
+      function resetGame(startNow) {
         state.score = 0;
+        state.wave = 1;
+        state.kills = 0;
+        state.gems = 0;
         state.combo = 0;
-        state.maxCombo = 0;
         state.comboTimer = 0;
-        state.starsCollected = 0;
-        state.smashedCount = 0;
-        state.timeLeft = PARAMS.roundDuration;
         state.hitstop = 0;
         state.shakeTime = 0;
         state.shakeMag = 0;
         state.flashAlpha = 0;
+        state.pickups = [];
+        state.slashes = [];
+        state.afterimages = [];
+        state.particles = [];
+        state.popups = [];
+        state.chest = null;
+
         state.player = {
           x: 0,
-          y: 120,
+          y: 45,
+          vx: 0,
+          vy: 0,
           angle: -Math.PI / 2,
-          visualSlip: 0,
-          speed: spec.baseSpeed,
-          driftCharge: 0,
-          chargeNotified: false,
-          turboTimer: 0,
-          invulnTimer: 0,
-          bounceZ: 0
+          hp: PARAMS.maxHp,
+          invuln: 0,
+          slashTimer: 0,
+          slashCooldown: 0,
+          chargeTime: 0,
+          chargeReadyNotified: false,
+          spinTimer: 0,
+          spinAngleOffset: 0,
+          rollTimer: 0,
+          rollCooldown: 0,
+          rollDirX: 0,
+          rollDirY: -1,
+          stepPhase: 0
         };
-        state.camX = state.player.x;
-        state.camY = state.player.y;
-        populateArena();
+        state.camX = 0;
+        state.camY = 30;
+
+        buildFieldProps();
+        spawnWave(1);
 
         if (startNow) {
           mode = 'playing';
@@ -1189,7 +1280,7 @@
         }
       }
 
-      function addBurst(x, y, color, outline, count, speed = 130) {
+      function addBurst(x, y, color, outline, count, speed = 135) {
         for (let i = 0; i < count; i++) {
           const a = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.5;
           const sp = speed * (0.45 + Math.random() * 0.75);
@@ -1197,8 +1288,8 @@
             x, y,
             vx: Math.cos(a) * sp,
             vy: Math.sin(a) * sp,
-            life: 0.25 + Math.random() * 0.22,
-            maxLife: 0.47,
+            life: 0.24 + Math.random() * 0.22,
+            maxLife: 0.46,
             size: 4 + Math.random() * 4,
             color,
             outline
@@ -1207,92 +1298,256 @@
       }
 
       function addPopup(x, y, text, color) {
-        state.popups.push({ x, y, text, color, life: 0.75, maxLife: 0.75 });
+        state.popups.push({ x, y, text, color, life: 0.78, maxLife: 0.78 });
       }
 
-      function finishRound() {
-        mode = 'result';
-        const isBest = state.score > bestScore;
-        if (isBest) {
-          bestScore = state.score;
-          localStorage.setItem(BEST_KEY, String(bestScore));
-          hudBest.textContent = bestScore.toLocaleString();
+      function dropLoot(x, y, guaranteedHigh = false) {
+        const roll = Math.random();
+        if (!guaranteedHigh && roll < 0.22 && state.player.hp < PARAMS.maxHp) {
+          state.pickups.push({ type: 'heart', x, y, vx: (Math.random() - 0.5) * 70, vy: (Math.random() - 0.5) * 70, phase: Math.random() * 6 });
+          return;
         }
-        sfx.playFinish(isBest);
+        if (guaranteedHigh || roll < 0.72) {
+          const tier = guaranteedHigh ? 2 : (roll < 0.12 ? 2 : (roll < 0.34 ? 1 : 0));
+          state.pickups.push({ type: 'gem', tier, x, y, vx: (Math.random() - 0.5) * 85, vy: (Math.random() - 0.5) * 85, phase: Math.random() * 6 });
+        }
+      }
 
-        let rank = 'B ランク — まずはドリフト溜め解放を狙おう';
-        if (state.score >= 7000) rank = 'S+ ランク — 雪原ドリフトマスター！';
-        else if (state.score >= 4500) rank = 'S ランク — 鮮やかなターボ連鎖！';
-        else if (state.score >= 2500) rank = 'A ランク — コンボの勘所を掴んでいます';
+      function resolveObstaclePush(ent, rad) {
+        const hw = PARAMS.arenaW / 2 - 26;
+        const hh = PARAMS.arenaH / 2 - 26;
+        ent.x = Math.max(-hw, Math.min(hw, ent.x));
+        ent.y = Math.max(-hh, Math.min(hh, ent.y));
+        for (const ob of state.obstacles) {
+          const minD = rad + ob.r * 0.78;
+          const dx = ent.x - ob.x;
+          const dy = ent.y - ob.y;
+          const d = Math.hypot(dx, dy);
+          if (d < minD && d > 0.001) {
+            ent.x = ob.x + (dx / d) * minD;
+            ent.y = ob.y + (dy / d) * minD;
+          }
+        }
+      }
 
-        document.getElementById('resultTitle').textContent = isBest ? 'ハイスコア更新！' : 'フィニッシュ';
-        document.getElementById('resultRank').textContent = rank;
-        document.getElementById('resScore').textContent = state.score.toLocaleString();
-        document.getElementById('resCombo').textContent = `${state.maxCombo} 連鎖`;
-        document.getElementById('resStars').textContent = `${state.starsCollected} 個`;
-        document.getElementById('resSmash').textContent = `${state.smashedCount} 体`;
-        resultOverlay.hidden = false;
+      function performSlash(isSpin) {
+        const p = state.player;
+        if (isSpin) {
+          p.spinTimer = PARAMS.spinDuration;
+          p.slashCooldown = 0.30;
+          sfx.playSpinSlash();
+          triggerHitstop(0.035, 5, 0.14, '#fef08a', 0.14);
+          state.slashes.push({ x: p.x, y: p.y, angle: p.angle, isSpin: true, life: 0.26, maxLife: 0.26 });
+        } else {
+          p.slashTimer = PARAMS.slashDuration;
+          p.slashCooldown = PARAMS.slashCooldown;
+          sfx.playSlash();
+          state.slashes.push({ x: p.x, y: p.y, angle: p.angle, isSpin: false, life: 0.15, maxLife: 0.15 });
+        }
+
+        const reach = isSpin ? PARAMS.spinRadius : PARAMS.slashReach;
+        const dmg = isSpin ? 3 : 1;
+
+        // 1. Cut nearby 3D grass bushes
+        for (const b of state.bushes) {
+          if (!b.alive) continue;
+          const dx = b.x - p.x;
+          const dy = b.y - p.y;
+          const d = Math.hypot(dx, dy);
+          if (d <= reach + 12) {
+            let inArc = isSpin;
+            if (!isSpin) {
+              const angDiff = Math.abs(Math.atan2(Math.sin(Math.atan2(dy, dx) - p.angle), Math.cos(Math.atan2(dy, dx) - p.angle)));
+              inArc = angDiff <= 1.25;
+            }
+            if (inArc) {
+              b.alive = false;
+              b.regrow = 16;
+              sfx.playGrassCut();
+              addBurst(b.x, b.y, '#4ade80', '#14532d', 8, 110);
+              dropLoot(b.x, b.y, false);
+            }
+          }
+        }
+
+        // 2. Deflect enemy magic projectiles (Parry)
+        for (const pr of state.projectiles) {
+          if (pr.reflected) continue;
+          const dx = pr.x - p.x;
+          const dy = pr.y - p.y;
+          const d = Math.hypot(dx, dy);
+          if (d <= reach + 16) {
+            pr.reflected = true;
+            const speed = 360;
+            pr.vx = Math.cos(p.angle) * speed;
+            pr.vy = Math.sin(p.angle) * speed;
+            pr.life = 2.0;
+            sfx.playParry();
+            triggerHitstop(0.065, 7, 0.16, '#bae6fd', 0.20);
+            addBurst(pr.x, pr.y, '#38bdf8', '#0f172a', 12, 165);
+            addPopup(pr.x, pr.y - 16, 'PARRY +150', '#0284c7');
+            state.score += 150;
+          }
+        }
+
+        // 3. Hit enemies
+        for (let i = state.enemies.length - 1; i >= 0; i--) {
+          const en = state.enemies[i];
+          const dx = en.x - p.x;
+          const dy = en.y - p.y;
+          const d = Math.hypot(dx, dy);
+          if (d > reach + en.r + 8) continue;
+
+          if (!isSpin) {
+            const angToEnemy = Math.atan2(dy, dx);
+            const diff = Math.abs(Math.atan2(Math.sin(angToEnemy - p.angle), Math.cos(angToEnemy - p.angle)));
+            if (diff > 1.28) continue;
+          }
+
+          // Shield Goblin frontal block check (normal slash only; spin slash breaks guard)
+          if (en.kind === 'goblin' && !isSpin) {
+            const angFromEnemy = Math.atan2(p.y - en.y, p.x - en.x);
+            const faceDiff = Math.abs(Math.atan2(Math.sin(angFromEnemy - en.angle), Math.cos(angFromEnemy - en.angle)));
+            if (faceDiff < 0.85) {
+              sfx.playShieldClang();
+              triggerHitstop(0.04, 4, 0.10);
+              addBurst(en.x - Math.cos(en.angle) * 10, en.y - Math.sin(en.angle) * 10, '#facc15', '#0f172a', 7, 130);
+              addPopup(en.x, en.y - 22, 'GUARD', '#475569');
+              en.vx += (dx / Math.max(1, d)) * 120;
+              en.vy += (dy / Math.max(1, d)) * 120;
+              continue;
+            }
+          }
+
+          damageEnemy(i, dmg, dx / Math.max(1, d), dy / Math.max(1, d), isSpin);
+        }
+      }
+
+      function damageEnemy(idx, dmg, nx, ny, isHeavy) {
+        const en = state.enemies[idx];
+        if (!en) return;
+        en.hp -= dmg;
+        en.hurtTimer = 0.20;
+        en.vx = nx * (isHeavy ? 290 : 210);
+        en.vy = ny * (isHeavy ? 290 : 210);
+
+        state.combo++;
+        state.comboTimer = PARAMS.comboWindow;
+        const mult = Math.min(PARAMS.maxComboMult, 1 + Math.floor(state.combo / 4));
+
+        if (en.hp <= 0) {
+          const base = en.kind === 'goblin' ? 220 : (en.kind === 'wizard' ? 200 : 120);
+          const pts = base * mult;
+          state.score += pts;
+          state.kills++;
+          sfx.playKill();
+          triggerHitstop(isHeavy ? 0.075 : 0.055, isHeavy ? 8 : 6, 0.16, '#ffffff', 0.16);
+          addBurst(en.x, en.y, '#fef08a', '#112018', 14, 175);
+          addPopup(en.x, en.y - 20, `+${pts}`, '#146c43');
+          dropLoot(en.x, en.y, en.kind !== 'slime');
+          state.enemies.splice(idx, 1);
+
+          // All enemies cleared -> Drop golden treasure chest at plaza center
+          if (state.enemies.length === 0) {
+            state.chest = { x: 0, y: 0, dropZ: 120, opened: false };
+            addPopup(0, -34, 'TREASURE', '#a16207');
+          }
+        } else {
+          sfx.playHit(isHeavy);
+          triggerHitstop(isHeavy ? 0.055 : 0.04, isHeavy ? 6 : 4, 0.12);
+          addBurst(en.x, en.y, '#ffffff', '#112018', 8, 130);
+          addPopup(en.x, en.y - 18, `-${dmg}`, '#b91c1c');
+        }
+      }
+
+      function hurtPlayer(nx, ny) {
+        const p = state.player;
+        if (p.invuln > 0 || p.rollTimer > 0) return;
+        p.hp--;
+        p.invuln = 1.05;
+        p.chargeTime = 0;
+        state.combo = 0;
+        p.vx = nx * 240;
+        p.vy = ny * 240;
+        sfx.playHurt();
+        triggerHitstop(0.085, 10, 0.22, '#ef4444', 0.26);
+        addBurst(p.x, p.y, '#ef4444', '#112018', 12, 150);
+        addPopup(p.x, p.y - 22, '-1 HEART', '#b91c1c');
+
+        if (p.hp <= 0) {
+          mode = 'result';
+          const isBest = state.score > bestScore;
+          if (isBest) {
+            bestScore = state.score;
+            localStorage.setItem(BEST_KEY, String(bestScore));
+            hudBest.textContent = bestScore.toLocaleString();
+          }
+          sfx.playGameOver();
+          document.getElementById('resultTitle').textContent = isBest ? 'ハイスコア更新' : '冒険終了';
+          document.getElementById('resultRank').textContent =
+            state.wave >= 5 ? '伝説の草原の剣士' : (state.wave >= 3 ? '熟練の冒険者' : '見習い剣士 — 回転斬りと弾き返しを試そう');
+          document.getElementById('resScore').textContent = state.score.toLocaleString();
+          document.getElementById('resWave').textContent = `Wave ${state.wave}`;
+          document.getElementById('resKills').textContent = `${state.kills} 体`;
+          document.getElementById('resGems').textContent = `${state.gems} 個`;
+          resultOverlay.hidden = false;
+        }
       }
 
       function syncHud() {
-        const mult = Math.min(PARAMS.maxComboMult, 1 + Math.floor(state.combo / 3));
-        hudScore.textContent = state.score.toLocaleString();
-        hudCombo.textContent = state.combo > 0 ? `x${mult} (${state.combo})` : 'x1';
-        hudTime.textContent = `${Math.max(0, state.timeLeft).toFixed(1)}s`;
-        hudTime.classList.toggle('is-warn', state.timeLeft <= 10 && mode === 'playing');
+        const p = state.player;
+        const full = '♥'.repeat(Math.max(0, p.hp));
+        const empty = '♡'.repeat(Math.max(0, PARAMS.maxHp - p.hp));
+        hudHearts.textContent = full + empty;
 
-        const pct = Math.round(state.player.driftCharge * 100);
-        hudBoostText.textContent = state.player.turboTimer > 0 ? 'TURBO' : `${pct}%`;
-        hudBoostFill.style.width = `${state.player.turboTimer > 0 ? 100 : pct}%`;
-        hudBoostFill.style.backgroundColor =
-          state.player.turboTimer > 0 ? '#dc2626' : (pct >= 100 ? '#d97706' : '#0f5c6e');
+        const mult = Math.min(PARAMS.maxComboMult, 1 + Math.floor(state.combo / 4));
+        hudScore.textContent = `${state.score.toLocaleString()} (x${mult})`;
+        hudWave.textContent = state.chest ? `Wave ${state.wave} / 宝箱` : `Wave ${state.wave} / ${state.enemies.length}`;
+
+        const pct = Math.min(100, Math.round((p.chargeTime / PARAMS.spinChargeTime) * 100));
+        hudChargeText.textContent = p.spinTimer > 0 ? 'SPIN' : (pct >= 100 ? 'READY' : `${pct}%`);
+        hudChargeFill.style.width = `${p.spinTimer > 0 ? 100 : pct}%`;
+        hudChargeFill.style.backgroundColor = pct >= 100 || p.spinTimer > 0 ? '#d97706' : '#146c43';
       }
 
       // =========================================================================
-      // Simulation Update
+      // Main Simulation Update
       // =========================================================================
       function update(dt) {
-        state.worldTime += dt;
+        state.time += dt;
 
-        // Ambient snow
-        for (const f of state.snowflakes) {
-          f.y += f.vy * dt;
-          f.x += f.vx * dt;
-          if (f.y > 1) { f.y = 0; f.x = Math.random(); }
-          if (f.x < 0) f.x = 1;
-          if (f.x > 1) f.x = 0;
-        }
+        if (state.flashAlpha > 0) state.flashAlpha = Math.max(0, state.flashAlpha - dt * 3.8);
+        if (state.shakeTime > 0) state.shakeTime = Math.max(0, state.shakeTime - dt);
 
-        if (state.flashAlpha > 0) {
-          state.flashAlpha = Math.max(0, state.flashAlpha - dt * 3.8);
-        }
-
-        if (state.shakeTime > 0) {
-          state.shakeTime = Math.max(0, state.shakeTime - dt);
-        }
-
-        // Particles & popups keep moving even during brief hitstop (Sakurai rule)
+        // Keep VFX alive during brief hitstop
         for (let i = state.particles.length - 1; i >= 0; i--) {
           const pt = state.particles[i];
           pt.x += pt.vx * dt;
           pt.y += pt.vy * dt;
-          pt.vx *= 0.92;
-          pt.vy *= 0.92;
+          pt.vx *= 0.90;
+          pt.vy *= 0.90;
           pt.life -= dt;
           if (pt.life <= 0) state.particles.splice(i, 1);
         }
         for (let i = state.popups.length - 1; i >= 0; i--) {
           const pop = state.popups[i];
-          pop.y -= 34 * dt;
+          pop.y -= 32 * dt;
           pop.life -= dt;
           if (pop.life <= 0) state.popups.splice(i, 1);
         }
+        for (let i = state.slashes.length - 1; i >= 0; i--) {
+          state.slashes[i].life -= dt;
+          if (state.slashes[i].life <= 0) state.slashes.splice(i, 1);
+        }
+        for (let i = state.afterimages.length - 1; i >= 0; i--) {
+          state.afterimages[i].life -= dt;
+          if (state.afterimages[i].life <= 0) state.afterimages.splice(i, 1);
+        }
 
         if (mode === 'title') {
-          // Live attract orbit in background
-          const a = state.worldTime * 0.55;
-          state.player.x = Math.cos(a) * 145;
-          state.player.y = Math.sin(a) * 115;
+          const a = state.time * 0.55;
+          state.player.x = Math.cos(a) * 90;
+          state.player.y = Math.sin(a) * 65;
           state.player.angle = a + Math.PI / 2;
           state.camX += (state.player.x - state.camX) * 0.08;
           state.camY += (state.player.y - state.camY) * 0.08;
@@ -1301,215 +1556,259 @@
 
         if (mode !== 'playing') return;
 
-        // Hitstop pause for crisp impact feel
         if (state.hitstop > 0) {
           state.hitstop = Math.max(0, state.hitstop - dt);
           return;
         }
 
-        state.timeLeft -= dt;
-        if (state.timeLeft <= 0) {
-          state.timeLeft = 0;
-          syncHud();
-          finishRound();
-          return;
-        }
-
         if (state.comboTimer > 0) {
           state.comboTimer -= dt;
-          if (state.comboTimer <= 0) {
-            state.combo = 0;
-          }
+          if (state.comboTimer <= 0) state.combo = 0;
         }
 
         const p = state.player;
-        const spec = PARAMS.racers[selectedRacer];
-
-        if (p.invulnTimer > 0) p.invulnTimer = Math.max(0, p.invulnTimer - dt);
-        if (p.turboTimer > 0) p.turboTimer = Math.max(0, p.turboTimer - dt);
-
-        const steer = (input.right ? 1 : 0) - (input.left ? 1 : 0);
-        const isDrifting = input.drift && p.turboTimer <= 0;
-
-        // Steering & Drift Charge
-        const turnRate = isDrifting ? spec.driftTurnRate : spec.turnRate;
-        p.angle += steer * turnRate * dt;
-
-        const targetSlip = isDrifting ? steer * 0.48 : steer * 0.14;
-        p.visualSlip += (targetSlip - p.visualSlip) * Math.min(1, dt * 12);
-
-        if (isDrifting) {
-          const chargeBoost = steer !== 0 ? 1.25 : 0.72;
-          p.driftCharge = Math.min(1, p.driftCharge + spec.chargeRate * chargeBoost * dt);
-          if (p.driftCharge >= 1 && !p.chargeNotified) {
-            p.chargeNotified = true;
-            sfx.playChargeReady();
-            addBurst(p.x, p.y, '#facc15', '#0f172a', 8, 90);
-          }
-          // Drift sparks
-          if (Math.random() < 0.75) {
-            const sparkCol = p.driftCharge >= 1 ? '#f97316' : '#38bdf8';
-            state.particles.push({
-              x: p.x - Math.cos(p.angle) * 14,
-              y: p.y - Math.sin(p.angle) * 14,
-              vx: -Math.cos(p.angle) * 50 + (Math.random() - 0.5) * 60,
-              vy: -Math.sin(p.angle) * 50 + (Math.random() - 0.5) * 60,
-              life: 0.22,
-              maxLife: 0.22,
-              size: 4,
-              color: sparkCol,
-              outline: '#0f172a'
-            });
-          }
-          state.skidMarks.push({ x: p.x, y: p.y, life: 1.4 });
-          if (state.skidMarks.length > 90) state.skidMarks.shift();
-        } else if (p.driftCharge > 0) {
-          // Released drift button
-          if (p.driftCharge >= 0.45) {
-            const power = p.driftCharge;
-            p.turboTimer = spec.turboDuration * (0.65 + power * 0.55);
-            sfx.playTurbo();
-            triggerHitstop(0.045, 5, 0.14, '#fef08a', 0.16);
-            addBurst(p.x, p.y, '#fb923c', '#0f172a', 12, 170);
-            addPopup(p.x, p.y - 24, power >= 0.98 ? 'MAX TURBO' : 'TURBO', '#d97706');
-          }
-          p.driftCharge = 0;
-          p.chargeNotified = false;
+        if (p.invuln > 0) p.invuln = Math.max(0, p.invuln - dt);
+        if (p.slashTimer > 0) p.slashTimer = Math.max(0, p.slashTimer - dt);
+        if (p.slashCooldown > 0) p.slashCooldown = Math.max(0, p.slashCooldown - dt);
+        if (p.rollCooldown > 0) p.rollCooldown = Math.max(0, p.rollCooldown - dt);
+        if (p.spinTimer > 0) {
+          p.spinTimer = Math.max(0, p.spinTimer - dt);
+          p.spinAngleOffset += dt * 24;
+        } else {
+          p.spinAngleOffset = 0;
         }
 
-        // Target speed
-        const targetSpeed =
-          p.turboTimer > 0 ? spec.turboSpeed : (isDrifting ? spec.baseSpeed * spec.driftSlowFactor : spec.baseSpeed);
-        p.speed += (targetSpeed - p.speed) * Math.min(1, dt * 8);
+        // Movement input
+        let ix = (input.right ? 1 : 0) - (input.left ? 1 : 0);
+        let iy = (input.down ? 1 : 0) - (input.up ? 1 : 0);
+        const ilen = Math.hypot(ix, iy);
+        if (ilen > 0) {
+          ix /= ilen;
+          iy /= ilen;
+        }
 
-        // Move player
-        p.x += Math.cos(p.angle) * p.speed * dt;
-        p.y += Math.sin(p.angle) * p.speed * dt;
-        p.bounceZ = Math.abs(Math.sin(state.worldTime * (p.turboTimer > 0 ? 18 : 11))) * (selectedRacer === 'bunny' ? 4.5 : 1.5);
+        // Roll trigger
+        if (input.roll && !prevRollHeld && p.rollCooldown <= 0 && p.rollTimer <= 0) {
+          p.rollTimer = PARAMS.rollDuration;
+          p.rollCooldown = PARAMS.rollCooldown;
+          p.chargeTime = 0;
+          p.rollDirX = ilen > 0 ? ix : Math.cos(p.angle);
+          p.rollDirY = ilen > 0 ? iy : Math.sin(p.angle);
+          p.angle = Math.atan2(p.rollDirY, p.rollDirX);
+          sfx.playRoll();
+        }
+        prevRollHeld = input.roll;
 
-        // Arena circular boundary bounce
-        const distFromCenter = Math.hypot(p.x, p.y);
-        if (distFromCenter > PARAMS.worldRadius - 20) {
-          const nx = p.x / distFromCenter;
-          const ny = p.y / distFromCenter;
-          p.x = nx * (PARAMS.worldRadius - 20);
-          p.y = ny * (PARAMS.worldRadius - 20);
-          const dot = Math.cos(p.angle) * nx + Math.sin(p.angle) * ny;
-          if (dot > 0) {
-            const rx = Math.cos(p.angle) - 2 * dot * nx;
-            const ry = Math.sin(p.angle) - 2 * dot * ny;
-            p.angle = Math.atan2(ry, rx);
+        // Attack & Spin-Attack Charge
+        if (input.attack) {
+          if (!prevAttackHeld && p.slashCooldown <= 0 && p.rollTimer <= 0) {
+            performSlash(false);
+          }
+          if (p.rollTimer <= 0) {
+            p.chargeTime += dt;
+            if (p.chargeTime >= PARAMS.spinChargeTime && !p.chargeReadyNotified) {
+              p.chargeReadyNotified = true;
+              sfx.playChargeReady();
+              addBurst(p.x, p.y, '#facc15', '#112018', 10, 95);
+            }
+          }
+        } else if (prevAttackHeld) {
+          if (p.chargeTime >= PARAMS.spinChargeTime && p.rollTimer <= 0) {
+            performSlash(true);
+          }
+          p.chargeTime = 0;
+          p.chargeReadyNotified = false;
+        }
+        prevAttackHeld = input.attack;
+
+        // Apply movement
+        if (p.rollTimer > 0) {
+          p.rollTimer = Math.max(0, p.rollTimer - dt);
+          p.x += p.rollDirX * PARAMS.rollSpeed * dt;
+          p.y += p.rollDirY * PARAMS.rollSpeed * dt;
+          if (Math.random() < 0.7) {
+            state.afterimages.push({ x: p.x, y: p.y, angle: p.angle, life: 0.16, maxLife: 0.16 });
+          }
+        } else {
+          const spd = p.chargeTime > 0.15 ? PARAMS.chargeMoveSpeed : PARAMS.moveSpeed;
+          p.x += (ix * spd + p.vx) * dt;
+          p.y += (iy * spd + p.vy) * dt;
+          p.vx *= 0.84;
+          p.vy *= 0.84;
+          if (ilen > 0) {
+            const targetA = Math.atan2(iy, ix);
+            const diff = Math.atan2(Math.sin(targetA - p.angle), Math.cos(targetA - p.angle));
+            p.angle += diff * Math.min(1, dt * 18);
+            p.stepPhase += dt * 14;
+          }
+        }
+        resolveObstaclePush(p, 15);
+
+        // Camera smooth lead
+        const targetCamX = p.x + Math.cos(p.angle) * 28;
+        const targetCamY = p.y + Math.sin(p.angle) * 24;
+        state.camX += (targetCamX - state.camX) * Math.min(1, dt * 7);
+        state.camY += (targetCamY - state.camY) * Math.min(1, dt * 7);
+
+        // Bush regrow
+        for (const b of state.bushes) {
+          if (!b.alive && b.regrow > 0) {
+            b.regrow -= dt;
+            if (b.regrow <= 0) b.alive = true;
           }
         }
 
-        // Camera look-ahead (Sakurai principle: lead the camera in movement direction)
-        const lead = p.turboTimer > 0 ? 64 : 38;
-        const targetCamX = p.x + Math.cos(p.angle) * lead;
-        const targetCamY = p.y + Math.sin(p.angle) * lead;
-        state.camX += (targetCamX - state.camX) * Math.min(1, dt * 6.5);
-        state.camY += (targetCamY - state.camY) * Math.min(1, dt * 6.5);
+        // Update Enemies
+        for (const en of state.enemies) {
+          if (en.hurtTimer > 0) en.hurtTimer = Math.max(0, en.hurtTimer - dt);
+          en.hopPhase += dt * (en.kind === 'slime' ? 8 : 10);
 
-        // Fade skid marks
-        for (let i = state.skidMarks.length - 1; i >= 0; i--) {
-          state.skidMarks[i].life -= dt;
-          if (state.skidMarks[i].life <= 0) state.skidMarks.splice(i, 1);
-        }
+          const dx = p.x - en.x;
+          const dy = p.y - en.y;
+          const dist = Math.hypot(dx, dy);
+          const nx = dx / Math.max(1, dist);
+          const ny = dy / Math.max(1, dist);
 
-        // Collect stars (with gentle magnetic pull for good feel)
-        for (let i = state.stars.length - 1; i >= 0; i--) {
-          const st = state.stars[i];
-          const d = Math.hypot(st.x - p.x, st.y - p.y);
-          if (d < spec.magnetRadius) {
-            const pull = (1 - d / spec.magnetRadius) * 260 * dt;
-            st.x += ((p.x - st.x) / Math.max(1, d)) * pull;
-            st.y += ((p.y - st.y) / Math.max(1, d)) * pull;
-          }
-          if (d < 22 * PARAMS.starCollectRadiusScale) {
-            state.combo++;
-            state.maxCombo = Math.max(state.maxCombo, state.combo);
-            state.comboTimer = PARAMS.comboWindow;
-            state.starsCollected++;
-            const mult = Math.min(PARAMS.maxComboMult, 1 + Math.floor(state.combo / 3));
-            const basePts = st.isMega ? 300 : 100;
-            const gained = basePts * mult;
-            state.score += gained;
-
-            if (st.isMega) {
-              state.timeLeft = Math.min(PARAMS.roundDuration, state.timeLeft + 2.0);
-              sfx.playMegaStar();
-              triggerHitstop(0.06, 6, 0.16, '#fecaca', 0.18);
-              addBurst(st.x, st.y, '#ef4444', '#0f172a', 14, 175);
-              addPopup(st.x, st.y - 18, `+${gained}  +2s`, '#b91c1c');
+          if (en.kind === 'slime') {
+            en.angle = Math.atan2(ny, nx);
+            const hopBoost = Math.sin(en.hopPhase) > 0 ? 84 : 36;
+            en.x += (nx * hopBoost + en.vx) * dt;
+            en.y += (ny * hopBoost + en.vy) * dt;
+          } else if (en.kind === 'goblin') {
+            en.aiTimer -= dt;
+            if (en.aiState === 'idle') {
+              en.angle = Math.atan2(ny, nx);
+              en.x += (nx * 64 + en.vx) * dt;
+              en.y += (ny * 64 + en.vy) * dt;
+              if (dist < 165 && en.aiTimer <= 0) {
+                en.aiState = 'windup';
+                en.aiTimer = 0.45;
+                en.chargeDirX = nx;
+                en.chargeDirY = ny;
+              }
+            } else if (en.aiState === 'windup') {
+              en.x += en.vx * dt;
+              en.y += en.vy * dt;
+              if (en.aiTimer <= 0) {
+                en.aiState = 'dash';
+                en.aiTimer = 0.45;
+              }
             } else {
-              sfx.playStar(state.combo);
-              addBurst(st.x, st.y, '#facc15', '#0f172a', 8, 120);
-              addPopup(st.x, st.y - 16, `+${gained}`, '#b45309');
+              en.x += (en.chargeDirX * 235 + en.vx) * dt;
+              en.y += (en.chargeDirY * 235 + en.vy) * dt;
+              if (en.aiTimer <= 0) {
+                en.aiState = 'idle';
+                en.aiTimer = 1.2;
+              }
             }
+          } else if (en.kind === 'wizard') {
+            en.angle = Math.atan2(ny, nx);
+            const desired = dist < 130 ? -65 : (dist > 220 ? 60 : 0);
+            en.x += (nx * desired + en.vx) * dt;
+            en.y += (ny * desired + en.vy) * dt;
+            en.aiTimer -= dt;
+            if (en.aiTimer <= 0 && dist < 340) {
+              en.aiTimer = 2.1;
+              state.projectiles.push({
+                x: en.x + nx * 14,
+                y: en.y + ny * 14,
+                vx: nx * 195,
+                vy: ny * 195,
+                life: 3.2,
+                reflected: false
+              });
+              sfx.tone(520, 0.08, 'sine', 0.08, 280);
+            }
+          }
 
-            const wasMega = st.isMega;
-            state.stars.splice(i, 1);
-            spawnStar(wasMega);
+          en.vx *= 0.85;
+          en.vy *= 0.85;
+          resolveObstaclePush(en, en.r);
+
+          // Contact with player
+          if (Math.hypot(p.x - en.x, p.y - en.y) < en.r + 12) {
+            hurtPlayer(nx, ny);
           }
         }
 
-        // Collide with Snowmen (Smash during turbo, bounce otherwise)
-        for (const sm of state.snowmen) {
-          if (sm.respawn > 0) {
-            sm.respawn -= dt;
-            continue;
-          }
-          const d = Math.hypot(sm.x - p.x, sm.y - p.y);
-          if (d < sm.r + 16) {
-            if (p.turboTimer > 0) {
-              sm.respawn = 5.5;
-              state.smashedCount++;
-              state.combo++;
-              state.maxCombo = Math.max(state.maxCombo, state.combo);
-              state.comboTimer = PARAMS.comboWindow;
-              const mult = Math.min(PARAMS.maxComboMult, 1 + Math.floor(state.combo / 3));
-              const gained = 250 * mult;
-              state.score += gained;
-              sfx.playSmash();
-              triggerHitstop(0.065, 8, 0.18, '#ffffff', 0.22);
-              addBurst(sm.x, sm.y, '#ffffff', '#0f172a', 16, 200);
-              addPopup(sm.x, sm.y - 20, `SMASH +${gained}`, '#0f5c6e');
-            } else if (p.invulnTimer <= 0) {
-              p.invulnTimer = 0.65;
-              p.speed = 60;
-              p.driftCharge = 0;
-              state.combo = 0;
-              const nx = (p.x - sm.x) / Math.max(1, d);
-              const ny = (p.y - sm.y) / Math.max(1, d);
-              p.x += nx * 16;
-              p.y += ny * 16;
-              sfx.playBump();
-              triggerHitstop(0.08, 9, 0.20, '#ef4444', 0.20);
-              addBurst(p.x, p.y, '#cbd5e1', '#0f172a', 10, 120);
-              addPopup(p.x, p.y - 18, 'BUMP', '#b91c1c');
+        // Update Projectiles
+        for (let i = state.projectiles.length - 1; i >= 0; i--) {
+          const pr = state.projectiles[i];
+          pr.x += pr.vx * dt;
+          pr.y += pr.vy * dt;
+          pr.life -= dt;
+
+          let remove = pr.life <= 0;
+          if (!remove) {
+            for (const ob of state.obstacles) {
+              if (Math.hypot(pr.x - ob.x, pr.y - ob.y) < ob.r * 0.75) {
+                addBurst(pr.x, pr.y, pr.reflected ? '#38bdf8' : '#ef4444', '#112018', 6, 90);
+                remove = true;
+                break;
+              }
             }
+          }
+
+          if (!remove && pr.reflected) {
+            for (let j = state.enemies.length - 1; j >= 0; j--) {
+              const en = state.enemies[j];
+              if (Math.hypot(pr.x - en.x, pr.y - en.y) < en.r + 12) {
+                damageEnemy(j, 4, pr.vx / 360, pr.vy / 360, true);
+                remove = true;
+                break;
+              }
+            }
+          } else if (!remove && Math.hypot(pr.x - p.x, pr.y - p.y) < 16) {
+            const len = Math.max(1, Math.hypot(pr.vx, pr.vy));
+            hurtPlayer(pr.vx / len, pr.vy / len);
+            remove = true;
+          }
+
+          if (remove) state.projectiles.splice(i, 1);
+        }
+
+        // Update Pickups
+        for (let i = state.pickups.length - 1; i >= 0; i--) {
+          const pk = state.pickups[i];
+          pk.x += pk.vx * dt;
+          pk.y += pk.vy * dt;
+          pk.vx *= 0.88;
+          pk.vy *= 0.88;
+          const d = Math.hypot(pk.x - p.x, pk.y - p.y);
+          if (d < 56) {
+            pk.x += ((p.x - pk.x) / Math.max(1, d)) * 220 * dt;
+            pk.y += ((p.y - pk.y) / Math.max(1, d)) * 220 * dt;
+          }
+          if (d < 22) {
+            if (pk.type === 'heart') {
+              p.hp = Math.min(PARAMS.maxHp, p.hp + 1);
+              sfx.playHeart();
+              addPopup(pk.x, pk.y - 14, '+1 HEART', '#b91c1c');
+            } else {
+              const val = pk.tier === 2 ? 150 : (pk.tier === 1 ? 50 : 15);
+              state.score += val;
+              state.gems++;
+              sfx.playGem(pk.tier);
+              addPopup(pk.x, pk.y - 14, `+${val}`, pk.tier === 2 ? '#b91c1c' : '#146c43');
+            }
+            state.pickups.splice(i, 1);
           }
         }
 
-        // Collide with Pine Trees (forgiving hitbox)
-        for (const t of state.trees) {
-          const hitR = t.r * PARAMS.treeHitRadiusScale + 12;
-          const d = Math.hypot(t.x - p.x, t.y - p.y);
-          if (d < hitR) {
-            const nx = (p.x - t.x) / Math.max(1, d);
-            const ny = (p.y - t.y) / Math.max(1, d);
-            p.x = t.x + nx * (hitR + 2);
-            p.y = t.y + ny * (hitR + 2);
-            if (p.invulnTimer <= 0) {
-              p.invulnTimer = 0.7;
-              p.speed = 55;
-              p.turboTimer = 0;
-              p.driftCharge = 0;
-              state.combo = 0;
-              sfx.playBump();
-              triggerHitstop(0.09, 11, 0.22, '#ef4444', 0.24);
-              addBurst(p.x, p.y, '#22c55e', '#0f172a', 10, 130);
-              addPopup(p.x, p.y - 20, 'CRASH', '#b91c1c');
-            }
+        // Update Wave Clear Treasure Chest
+        if (state.chest) {
+          if (state.chest.dropZ > 0) {
+            state.chest.dropZ = Math.max(0, state.chest.dropZ - dt * 360);
+          } else if (Math.hypot(p.x - state.chest.x, p.y - state.chest.y) < 34) {
+            const bonus = 400 + state.wave * 100;
+            state.score += bonus;
+            p.hp = Math.min(PARAMS.maxHp, p.hp + 1);
+            sfx.playChest();
+            triggerHitstop(0.06, 6, 0.16, '#fef08a', 0.22);
+            addBurst(state.chest.x, state.chest.y, '#facc15', '#112018', 18, 190);
+            addPopup(state.chest.x, state.chest.y - 24, `CLEAR +${bonus}`, '#a16207');
+            state.wave++;
+            spawnWave(state.wave);
           }
         }
 
@@ -1517,18 +1816,19 @@
       }
 
       // =========================================================================
-      // Pseudo-3D Sprite-Stacking Renderer
+      // Pseudo-3D Sprite-Stacking Renderer (SFC Meadow Palette)
       // =========================================================================
-      function drawStackedSprite(sprite, sx, sy, angle, scale, layerStep, zLift = 0) {
+      function drawStacked(sprite, sx, sy, angle, scale, layerStep, zLift = 0, alpha = 1) {
         const layers = sprite.layers;
-        const drawSize = sprite.size * scale;
+        const sz = sprite.size * scale;
         ctx.save();
+        ctx.globalAlpha = alpha;
         ctx.imageSmoothingEnabled = false;
         for (let z = 0; z < layers.length; z++) {
           ctx.save();
           ctx.translate(sx, sy - zLift - z * layerStep);
           ctx.rotate(angle);
-          ctx.drawImage(layers[z], -drawSize / 2, -drawSize / 2, drawSize, drawSize);
+          ctx.drawImage(layers[z], -sz / 2, -sz / 2, sz, sz);
           ctx.restore();
         }
         ctx.restore();
@@ -1543,11 +1843,9 @@
           canvas.width = w * dpr;
           canvas.height = h * dpr;
         }
-
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         ctx.imageSmoothingEnabled = false;
 
-        // Shake offset
         let shakeX = 0;
         let shakeY = 0;
         if (state.shakeTime > 0 && !reducedMotion) {
@@ -1559,121 +1857,214 @@
         const cx = w / 2 - state.camX + shakeX;
         const cy = h / 2 - state.camY + shakeY;
 
-        // Sky / out-of-bounds snow slate
-        ctx.fillStyle = '#cbd5e1';
+        // Forest edge dark green
+        ctx.fillStyle = '#1b4d2a';
         ctx.fillRect(0, 0, w, h);
 
-        // Circular snow arena
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(cx, cy, PARAMS.worldRadius, 0, Math.PI * 2);
-        ctx.fillStyle = '#edf5ff';
-        ctx.fill();
-        ctx.lineWidth = 6;
-        ctx.strokeStyle = '#94a3b8';
-        ctx.stroke();
+        // SFC Meadow checkerboard tiles
+        const hw = PARAMS.arenaW / 2;
+        const hh = PARAMS.arenaH / 2;
+        ctx.fillStyle = '#53a64a';
+        ctx.fillRect(cx - hw, cy - hh, PARAMS.arenaW, PARAMS.arenaH);
 
-        // Subtle racing track ring for spatial reference
-        ctx.beginPath();
-        ctx.arc(cx, cy, 240, 0, Math.PI * 2);
-        ctx.strokeStyle = '#dbeafe';
-        ctx.lineWidth = 36;
-        ctx.stroke();
-
-        // Skid marks
-        for (const m of state.skidMarks) {
-          ctx.fillStyle = `rgba(100, 116, 139, ${Math.min(0.45, m.life * 0.35)})`;
-          ctx.fillRect(cx + m.x - 3, cy + m.y - 3, 6, 6);
-        }
-        ctx.restore();
-
-        // Depth-sorted render queue (Painter's algorithm by world Y)
-        const queue = [];
-
-        for (const t of state.trees) {
-          queue.push({ y: t.y, type: 'tree', obj: t });
-        }
-        for (const sm of state.snowmen) {
-          if (sm.respawn <= 0) queue.push({ y: sm.y, type: 'snowman', obj: sm });
-        }
-        for (const st of state.stars) {
-          queue.push({ y: st.y, type: 'star', obj: st });
-        }
-        queue.push({ y: state.player.y, type: 'player', obj: state.player });
-
-        queue.sort((a, b) => a.y - b.y);
-
-        const spec = PARAMS.racers[selectedRacer];
-
-        for (const item of queue) {
-          const sx = cx + item.obj.x;
-          const sy = cy + item.obj.y;
-          // Frustum cull
-          if (sx < -90 || sx > w + 90 || sy < -90 || sy > h + 90) continue;
-
-          if (item.type === 'tree') {
-            ctx.fillStyle = 'rgba(15, 23, 42, 0.16)';
-            ctx.beginPath();
-            ctx.ellipse(sx, sy + 5, 20, 12, 0, 0, Math.PI * 2);
-            ctx.fill();
-            drawStackedSprite(SPRITES.pine, sx, sy, 0.25, 2.7, 2.0);
-          } else if (item.type === 'snowman') {
-            ctx.fillStyle = 'rgba(15, 23, 42, 0.16)';
-            ctx.beginPath();
-            ctx.ellipse(sx, sy + 4, 15, 9, 0, 0, Math.PI * 2);
-            ctx.fill();
-            drawStackedSprite(SPRITES.snowman, sx, sy, item.obj.angle, 2.6, 1.85);
-          } else if (item.type === 'star') {
-            const bob = 10 + Math.sin(state.worldTime * 4.5 + item.obj.phase) * 4;
-            ctx.fillStyle = item.obj.isMega ? 'rgba(220, 38, 38, 0.22)' : 'rgba(202, 138, 4, 0.22)';
-            ctx.beginPath();
-            ctx.ellipse(sx, sy + 4, item.obj.isMega ? 14 : 11, 7, 0, 0, Math.PI * 2);
-            ctx.fill();
-            drawStackedSprite(
-              item.obj.isMega ? SPRITES.megaStar : SPRITES.star,
-              sx, sy,
-              state.worldTime * 2.4 + item.obj.phase,
-              item.obj.isMega ? 2.8 : 2.3,
-              1.6,
-              bob
-            );
-          } else if (item.type === 'player') {
-            const p = item.obj;
-            // Turbo aura ring
-            if (p.turboTimer > 0) {
-              ctx.strokeStyle = '#f97316';
-              ctx.lineWidth = 3;
-              ctx.beginPath();
-              ctx.ellipse(sx, sy + 3, 28, 18, 0, 0, Math.PI * 2);
-              ctx.stroke();
-            }
-            // Ground shadow
-            ctx.fillStyle = 'rgba(15, 23, 42, 0.24)';
-            ctx.beginPath();
-            ctx.ellipse(sx, sy + 4, 22, 13, 0, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Blink on invulnerability
-            const blinkSkip = p.invulnTimer > 0 && Math.floor(state.worldTime * 20) % 2 === 0;
-            if (!blinkSkip) {
-              // Model nose faces -Y, so add +PI/2 to align with movement angle
-              const drawAngle = p.angle + Math.PI / 2 + p.visualSlip;
-              drawStackedSprite(
-                SPRITES[selectedRacer],
-                sx, sy,
-                drawAngle,
-                spec.scale,
-                spec.layerStep,
-                p.bounceZ
-              );
+        const tile = 40;
+        ctx.fillStyle = '#4b9843';
+        for (let ty = -hh; ty < hh; ty += tile) {
+          for (let tx = -hw; tx < hw; tx += tile) {
+            if (((Math.round(tx / tile) + Math.round(ty / tile)) & 1) === 0) {
+              ctx.fillRect(cx + tx, cy + ty, tile, tile);
             }
           }
         }
 
-        // Crisp high-contrast particles (Sakurai rule: dark outline so visible on bright snow)
+        // Dirt crossroads & stone central plaza
+        ctx.fillStyle = '#c8a972';
+        ctx.fillRect(cx - hw + 40, cy - 26, PARAMS.arenaW - 80, 52);
+        ctx.fillRect(cx - 26, cy - hh + 40, 52, PARAMS.arenaH - 80);
+
+        ctx.fillStyle = '#b9c5c9';
+        ctx.beginPath();
+        ctx.arc(cx, cy, 74, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = '#7e8f96';
+        ctx.stroke();
+
+        // Wildflowers
+        for (const fl of state.flowers) {
+          ctx.fillStyle = fl.col;
+          ctx.fillRect(cx + fl.x, cy + fl.y, 4, 4);
+        }
+
+        // Arena fence border
+        ctx.strokeStyle = '#2d5e34';
+        ctx.lineWidth = 8;
+        ctx.strokeRect(cx - hw, cy - hh, PARAMS.arenaW, PARAMS.arenaH);
+
+        // Afterimages
+        for (const ai of state.afterimages) {
+          drawStacked(SPRITES.hero, cx + ai.x, cy + ai.y, ai.angle + Math.PI / 2, 2.7, 1.75, 2, (ai.life / ai.maxLife) * 0.35);
+        }
+
+        // Depth-sorted render queue (Painter's algorithm)
+        const queue = [];
+        for (const ob of state.obstacles) queue.push({ y: ob.y, type: ob.type, obj: ob });
+        for (const b of state.bushes) if (b.alive) queue.push({ y: b.y, type: 'bush', obj: b });
+        for (const pk of state.pickups) queue.push({ y: pk.y, type: 'pickup', obj: pk });
+        if (state.chest) queue.push({ y: state.chest.y, type: 'chest', obj: state.chest });
+        for (const en of state.enemies) queue.push({ y: en.y, type: 'enemy', obj: en });
+        queue.push({ y: state.player.y, type: 'player', obj: state.player });
+
+        queue.sort((a, b) => a.y - b.y);
+
+        for (const item of queue) {
+          const sx = cx + item.obj.x;
+          const sy = cy + item.obj.y;
+          if (sx < -100 || sx > w + 100 || sy < -100 || sy > h + 100) continue;
+
+          if (item.type === 'tree') {
+            ctx.fillStyle = 'rgba(12, 34, 18, 0.25)';
+            ctx.beginPath();
+            ctx.ellipse(sx, sy + 6, 28, 16, 0, 0, Math.PI * 2);
+            ctx.fill();
+            drawStacked(SPRITES.tree, sx, sy, 0.2, 2.8, 2.0);
+          } else if (item.type === 'pillar') {
+            ctx.fillStyle = 'rgba(12, 34, 18, 0.24)';
+            ctx.beginPath();
+            ctx.ellipse(sx, sy + 5, 20, 12, 0, 0, Math.PI * 2);
+            ctx.fill();
+            drawStacked(SPRITES.pillar, sx, sy, 0, 2.6, 2.0);
+          } else if (item.type === 'bush') {
+            ctx.fillStyle = 'rgba(12, 34, 18, 0.20)';
+            ctx.beginPath();
+            ctx.ellipse(sx, sy + 4, 15, 9, 0, 0, Math.PI * 2);
+            ctx.fill();
+            drawStacked(SPRITES.bush, sx, sy, 0.4, 2.5, 1.5);
+          } else if (item.type === 'pickup') {
+            const pk = item.obj;
+            const bob = 6 + Math.sin(state.time * 5 + pk.phase) * 3;
+            const sp = pk.type === 'heart' ? SPRITES.heart : SPRITES[`gem${pk.tier}`];
+            ctx.fillStyle = 'rgba(12, 34, 18, 0.22)';
+            ctx.beginPath();
+            ctx.ellipse(sx, sy + 3, 9, 5, 0, 0, Math.PI * 2);
+            ctx.fill();
+            drawStacked(sp, sx, sy, state.time * 3 + pk.phase, 2.4, 1.4, bob);
+          } else if (item.type === 'chest') {
+            ctx.fillStyle = 'rgba(12, 34, 18, 0.28)';
+            ctx.beginPath();
+            ctx.ellipse(sx, sy + 5, 22, 12, 0, 0, Math.PI * 2);
+            ctx.fill();
+            drawStacked(SPRITES.chest, sx, sy, 0, 2.8, 1.8, item.obj.dropZ);
+          } else if (item.type === 'enemy') {
+            const en = item.obj;
+            ctx.fillStyle = 'rgba(12, 34, 18, 0.24)';
+            ctx.beginPath();
+            ctx.ellipse(sx, sy + 4, 17, 10, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Windup telegraph ring for Shield Goblin
+            if (en.kind === 'goblin' && en.aiState === 'windup') {
+              ctx.strokeStyle = '#ef4444';
+              ctx.lineWidth = 3;
+              ctx.beginPath();
+              ctx.ellipse(sx, sy + 3, 24, 15, 0, 0, Math.PI * 2);
+              ctx.stroke();
+            }
+
+            const hop = en.kind === 'slime' ? Math.max(0, Math.sin(en.hopPhase) * 9) : Math.abs(Math.sin(en.hopPhase)) * 2.5;
+            const sp = SPRITES[en.kind];
+            const flashAlpha = en.hurtTimer > 0 && Math.floor(state.time * 30) % 2 === 0 ? 0.55 : 1;
+            drawStacked(sp, sx, sy, en.angle + Math.PI / 2, 2.6, 1.8, hop, flashAlpha);
+
+            // Mini HP bar above damaged enemy
+            if (en.hp < en.maxHp) {
+              ctx.fillStyle = '#0f172a';
+              ctx.fillRect(sx - 15, sy - 42, 30, 5);
+              ctx.fillStyle = '#ef4444';
+              ctx.fillRect(sx - 14, sy - 41, Math.round(28 * (en.hp / en.maxHp)), 3);
+            }
+          } else if (item.type === 'player') {
+            const p = item.obj;
+            // Charge golden aura ring
+            if (p.chargeTime >= PARAMS.spinChargeTime) {
+              ctx.strokeStyle = '#facc15';
+              ctx.lineWidth = 3;
+              ctx.beginPath();
+              ctx.ellipse(sx, sy + 3, 28, 17, 0, 0, Math.PI * 2);
+              ctx.stroke();
+            }
+            ctx.fillStyle = 'rgba(12, 34, 18, 0.28)';
+            ctx.beginPath();
+            ctx.ellipse(sx, sy + 4, 18, 11, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            const blink = p.invuln > 0 && Math.floor(state.time * 22) % 2 === 0;
+            if (!blink) {
+              const bob = Math.abs(Math.sin(p.stepPhase)) * 3;
+              const drawA = p.angle + Math.PI / 2 + p.spinAngleOffset;
+              drawStacked(SPRITES.hero, sx, sy, drawA, 2.8, 1.8, bob);
+            }
+          }
+        }
+
+        // Sword Slash Arcs (Crisp crescent + dark outline so readable on bright grass)
+        for (const sl of state.slashes) {
+          const sx = cx + sl.x;
+          const sy = cy + sl.y - 12;
+          const t = sl.life / sl.maxLife;
+          ctx.save();
+          ctx.translate(sx, sy);
+          if (sl.isSpin) {
+            ctx.strokeStyle = '#112018';
+            ctx.lineWidth = 14 * t;
+            ctx.beginPath();
+            ctx.arc(0, 0, PARAMS.spinRadius - 8, 0, Math.PI * 2);
+            ctx.stroke();
+
+            ctx.strokeStyle = '#facc15';
+            ctx.lineWidth = 9 * t;
+            ctx.beginPath();
+            ctx.arc(0, 0, PARAMS.spinRadius - 8, 0, Math.PI * 2);
+            ctx.stroke();
+          } else {
+            ctx.rotate(sl.angle);
+            ctx.strokeStyle = '#112018';
+            ctx.lineWidth = 14 * t;
+            ctx.beginPath();
+            ctx.arc(0, 0, PARAMS.slashReach - 8, -1.15, 1.15);
+            ctx.stroke();
+
+            ctx.strokeStyle = '#e0f2fe';
+            ctx.lineWidth = 8 * t;
+            ctx.beginPath();
+            ctx.arc(0, 0, PARAMS.slashReach - 8, -1.15, 1.15);
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+
+        // Magic Projectiles
+        for (const pr of state.projectiles) {
+          const sx = cx + pr.x;
+          const sy = cy + pr.y - 10;
+          ctx.fillStyle = '#0f172a';
+          ctx.beginPath();
+          ctx.arc(sx, sy, 9, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = pr.reflected ? '#38bdf8' : '#ef4444';
+          ctx.beginPath();
+          ctx.arc(sx, sy, 6, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(sx - 2, sy - 2, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Particles with dark border
         for (const pt of state.particles) {
           const sx = cx + pt.x;
-          const sy = cy + pt.y;
+          const sy = cy + pt.y - 8;
           const s = pt.size * (pt.life / pt.maxLife);
           ctx.fillStyle = pt.outline;
           ctx.fillRect(sx - s / 2 - 1, sy - s / 2 - 1, s + 2, s + 2);
@@ -1681,7 +2072,7 @@
           ctx.fillRect(sx - s / 2, sy - s / 2, s, s);
         }
 
-        // Floating score popups
+        // Floating damage & score popups
         ctx.font = '700 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
         ctx.textAlign = 'center';
         for (const pop of state.popups) {
@@ -1694,12 +2085,6 @@
           ctx.fillText(pop.text, sx, sy);
         }
 
-        // Ambient falling snow overlay
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.72)';
-        for (const f of state.snowflakes) {
-          ctx.fillRect(f.x * w, f.y * h, f.r, f.r);
-        }
-
         // Impact flash
         if (state.flashAlpha > 0) {
           ctx.fillStyle = state.flashColor;
@@ -1709,9 +2094,6 @@
         }
       }
 
-      // =========================================================================
-      // Main Loop (Fixed-safe delta cap)
-      // =========================================================================
       let lastTime = performance.now();
       function frame(now) {
         const dt = Math.min(0.05, (now - lastTime) / 1000);
@@ -1722,30 +2104,53 @@
       }
 
       // =========================================================================
-      // Input & UI Bindings
+      // Input Bindings (Keyboard, Mouse, Touch)
       // =========================================================================
       window.addEventListener('keydown', (e) => {
+        if (e.code === 'ArrowUp' || e.code === 'KeyW') input.up = true;
+        if (e.code === 'ArrowDown' || e.code === 'KeyS') input.down = true;
         if (e.code === 'ArrowLeft' || e.code === 'KeyA') input.left = true;
         if (e.code === 'ArrowRight' || e.code === 'KeyD') input.right = true;
-        if (e.code === 'Space') {
+        if (e.code === 'Space' || e.code === 'KeyJ') {
           if (mode === 'playing') e.preventDefault();
-          input.drift = true;
+          input.attack = true;
+        }
+        if (e.code === 'ShiftLeft' || e.code === 'ShiftRight' || e.code === 'KeyK') {
+          input.roll = true;
         }
         if (e.code === 'Enter' && (mode === 'title' || mode === 'result')) {
           e.preventDefault();
-          resetRound(true);
+          resetGame(true);
         }
         if (e.code === 'KeyR' && mode !== 'title') {
           e.preventDefault();
-          resetRound(true);
+          resetGame(true);
         }
       });
 
       window.addEventListener('keyup', (e) => {
+        if (e.code === 'ArrowUp' || e.code === 'KeyW') input.up = false;
+        if (e.code === 'ArrowDown' || e.code === 'KeyS') input.down = false;
         if (e.code === 'ArrowLeft' || e.code === 'KeyA') input.left = false;
         if (e.code === 'ArrowRight' || e.code === 'KeyD') input.right = false;
-        if (e.code === 'Space') input.drift = false;
+        if (e.code === 'Space' || e.code === 'KeyJ') input.attack = false;
+        if (e.code === 'ShiftLeft' || e.code === 'ShiftRight' || e.code === 'KeyK') input.roll = false;
       });
+
+      // Mouse left click = attack/charge, right click = roll
+      canvas.addEventListener('pointerdown', (e) => {
+        if (mode !== 'playing') return;
+        if (e.button === 2) {
+          input.roll = true;
+        } else {
+          input.attack = true;
+        }
+      });
+      window.addEventListener('pointerup', (e) => {
+        if (e.button === 2) input.roll = false;
+        else input.attack = false;
+      });
+      canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
       function bindHold(el, key) {
         const down = (e) => {
@@ -1763,13 +2168,16 @@
         el.addEventListener('pointercancel', up);
       }
 
+      bindHold(document.getElementById('btnUp'), 'up');
+      bindHold(document.getElementById('btnDown'), 'down');
       bindHold(document.getElementById('btnLeft'), 'left');
       bindHold(document.getElementById('btnRight'), 'right');
-      bindHold(document.getElementById('btnDrift'), 'drift');
+      bindHold(document.getElementById('btnAttack'), 'attack');
+      bindHold(document.getElementById('btnRoll'), 'roll');
 
-      document.getElementById('startBtn').addEventListener('click', () => resetRound(true));
-      document.getElementById('retryBtn').addEventListener('click', () => resetRound(true));
-      document.getElementById('restartTopBtn').addEventListener('click', () => resetRound(true));
+      document.getElementById('startBtn').addEventListener('click', () => resetGame(true));
+      document.getElementById('retryBtn').addEventListener('click', () => resetGame(true));
+      document.getElementById('restartTopBtn').addEventListener('click', () => resetGame(true));
 
       const muteBtn = document.getElementById('muteBtn');
       muteBtn.addEventListener('click', () => {
@@ -1778,14 +2186,7 @@
         muteBtn.textContent = sfx.muted ? '効果音: オフ' : '効果音: オン';
       });
 
-      document.querySelectorAll('input[name="racer"]').forEach((radio) => {
-        radio.addEventListener('change', (e) => {
-          selectedRacer = e.target.value;
-          if (mode === 'title') syncHud();
-        });
-      });
-
-      resetRound(false);
+      resetGame(false);
       requestAnimationFrame(frame);
     })();
   </script>
